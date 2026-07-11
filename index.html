@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>加拿大退休规划计算器 | Canadian Retirement Planner</title>
+<style>
+:root{--navy:#1f4e5f;--blue:#2e75b6;--bg:#f4f7f9;--card:#ffffff;--ink:#22323a;--muted:#6b7f88;--accent:#e8734a;--green:#3a8a5f;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;}
+header{background:var(--navy);color:#fff;padding:18px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+header h1{font-size:20px;font-weight:600;}
+header .sub{font-size:12px;opacity:.75;}
+.langbtn{background:#fff;color:var(--navy);border:none;border-radius:20px;padding:8px 18px;font-size:14px;cursor:pointer;font-weight:600;}
+main{max-width:1080px;margin:0 auto;padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:860px){main{grid-template-columns:1fr;}}
+.card{background:var(--card);border-radius:12px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.card h2{font-size:16px;color:var(--navy);margin-bottom:14px;border-left:4px solid var(--accent);padding-left:10px;}
+label{display:block;font-size:13px;color:var(--muted);margin:12px 0 4px;}
+input[type=number],select{width:100%;padding:9px 10px;border:1px solid #cfd9de;border-radius:8px;font-size:14px;background:#fff;}
+.pills{display:flex;gap:6px;flex-wrap:wrap;}
+.pill{flex:1;min-width:52px;padding:8px 0;text-align:center;border:1px solid #cfd9de;border-radius:8px;cursor:pointer;font-size:14px;background:#fff;}
+.pill.on{background:var(--blue);color:#fff;border-color:var(--blue);font-weight:600;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.chk{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:14px;}
+.chk input{width:16px;height:16px;}
+.hint{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5;}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:14px;cursor:pointer;font-weight:600;}
+.btn.alt{background:var(--accent);}
+details{margin:6px 0;border:1px solid #e4ebee;border-radius:8px;padding:8px 12px;font-size:13px;}
+details summary{cursor:pointer;color:var(--navy);}
+details p{margin-top:6px;color:var(--ink);}
+@media print{
+ body{background:#fff;}
+ header{background:#fff;color:#000;-webkit-print-color-adjust:exact;}
+ .langbtn,.btn,#modePills,#retPills,#deathPills,#wherePills{display:none!important;}
+ .card{box-shadow:none;border:1px solid #ccc;page-break-inside:avoid;}
+ main{display:block;}main .card{margin-bottom:14px;}
+}
+.result-big{font-size:42px;font-weight:700;color:var(--navy);}
+.result-sub{font-size:13px;color:var(--muted);margin-bottom:10px;}
+.srcTable{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;}
+.srcTable td,.srcTable th{padding:6px 8px;border-bottom:1px solid #e4ebee;text-align:left;}
+.srcTable th{color:var(--muted);font-weight:500;}
+.warn{background:#fdf3ec;border-left:4px solid var(--accent);padding:10px 12px;border-radius:6px;font-size:13px;margin-top:10px;}
+.ok{background:#eef7f1;border-left:4px solid var(--green);padding:10px 12px;border-radius:6px;font-size:13px;margin-top:10px;}
+canvas{width:100%;height:260px;margin-top:8px;}
+footer{max-width:1080px;margin:0 auto;padding:16px 24px 40px;font-size:12px;color:var(--muted);}
+.full{grid-column:1/-1;}
+.destTable{width:100%;border-collapse:collapse;font-size:13px;}
+.destTable td,.destTable th{padding:7px 8px;border-bottom:1px solid #e4ebee;text-align:left;}
+.destTable th{background:#eef4f7;color:var(--navy);}
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;}
+.tag.good{background:#dff0e6;color:#2c6e4b;}
+.tag.mid{background:#fdf0d8;color:#9a6b12;}
+.tag.bad{background:#fbe3dc;color:#a83c22;}
+</style>
+</head>
+<body>
+<header>
+  <div><h1 id="t_title">加拿大退休规划计算器</h1><div class="sub" id="t_sub">估算级原型 · 数据截至2026年 · 仅供教育参考</div></div>
+  <button class="langbtn" onclick="toggleLang()" id="langBtn">EN</button>
+</header>
+<main>
+  <!-- ===== inputs ===== -->
+  <div class="card">
+    <h2 id="t_basics">基本情况</h2>
+    <label id="l_mode">规划模式</label>
+    <div class="pills" id="modePills"></div>
+    <div class="row2">
+      <div><label id="l_curAge">当前年龄</label><input type="number" id="curAge" value="48" min="18" max="80"></div>
+      <div><label id="l_prov">居住省份</label><select id="prov"></select></div>
+    </div>
+    <div class="hint" id="provNote" style="display:none"></div>
+    <label id="l_income">在加工作期间平均年收入 (CAD)</label>
+    <input type="number" id="income" value="90000" step="5000">
+    <div class="hint" id="incomeHint"></div>
+    <label id="l_retAge">目标退休年龄</label>
+    <div class="pills" id="retPills"></div>
+    <label id="l_deathAge">规划到几岁(预期寿命)</label>
+    <div class="pills" id="deathPills"></div>
+    <div class="row2">
+      <div><label id="l_yrsWork">退休时在加工作年限</label><input type="number" id="yrsWork" value="25" min="0" max="50"></div>
+      <div><label id="l_yrsRes">退休时在加居住年限</label><input type="number" id="yrsRes" value="25" min="0" max="60"></div>
+    </div>
+  </div>
+
+  <div class="card" id="coupleCard" style="display:none">
+    <h2 id="t_spouse">配偶信息</h2>
+    <div class="row2">
+      <div><label id="l_curAge2">配偶当前年龄</label><input type="number" id="curAge2" value="48" min="18" max="80"></div>
+      <div><label id="l_retAge2">配偶退休年龄</label><input type="number" id="retAge2" value="60" min="40" max="75"></div>
+    </div>
+    <div class="row2">
+      <div><label id="l_death2">配偶预期寿命(规划到几岁)</label><input type="number" id="death2" value="90" min="50" max="105"></div>
+      <div><label id="l_income2">配偶在加平均年收入 ($)</label><input type="number" id="income2" value="70000" step="5000"></div>
+    </div>
+    <div class="row2">
+      <div><label id="l_yrsWork2">配偶在加工作年限</label><input type="number" id="yrsWork2" value="25" min="0" max="50"></div>
+      <div><label id="l_yrsRes2">配偶在加居住年限</label><input type="number" id="yrsRes2" value="25" min="0" max="60"></div>
+    </div>
+    <div class="row2">
+      <div><label id="l_rrsp2">配偶 RRSP ($)</label><input type="number" id="rrsp2" value="0" step="10000"></div>
+      <div><label id="l_tfsa2">配偶 TFSA ($)</label><input type="number" id="tfsa2" value="0" step="5000"></div>
+    </div>
+    <div class="row2">
+      <div><label id="l_pension2">配偶公司养老金 ($/月)</label><input type="number" id="pension2" value="0" step="100"></div>
+      <div><label id="l_penStart2">配偶养老金起领年龄</label><input type="number" id="penStart2" value="65" min="50" max="71"></div>
+    </div>
+    <div class="hint" id="coupleHint"></div>
+  </div>
+
+  <div class="card">
+    <h2 id="t_assets">资产与储蓄</h2>
+    <div class="row2">
+      <div><label>RRSP ($)</label><input type="number" id="rrsp" value="400000" step="10000"></div>
+      <div><label>TFSA ($)</label><input type="number" id="tfsa" value="100000" step="5000"></div>
+    </div>
+    <div class="row2">
+      <div><label id="l_nonreg">其他投资(非注册) ($)</label><input type="number" id="nonreg" value="50000" step="5000"></div>
+      <div><label id="l_pension">公司养老金 ($/月)</label><input type="number" id="pension" value="0" step="100"></div>
+    </div>
+    <div class="row2">
+      <div><label id="l_penStart">公司养老金开始领取年龄</label><input type="number" id="penStart" value="65" min="50" max="71"></div>
+      <div></div>
+    </div>
+    <div class="row2">
+      <div><label id="l_save">退休前每年新增储蓄 ($)</label><input type="number" id="save" value="30000" step="5000"></div>
+      <div><label id="l_ret">名义年回报率 %</label><input type="number" id="retRate" value="5" step="0.5"></div>
+    </div>
+    <div class="row2">
+      <div><label id="l_infl">通胀率 %</label><input type="number" id="infl" value="2" step="0.5"></div>
+      <div><label id="l_propAmt">卖房/换小房净所得 ($)</label><input type="number" id="propAmt" value="0" step="25000"></div>
+    </div>
+    <div class="hint" id="retHint"></div>
+  </div>
+
+  <div class="card">
+    <h2 id="t_legacy">遗产与身后事</h2>
+    <label id="l_legacy">想留下的遗产 ($,填0即“花光”)</label>
+    <input type="number" id="legacy" value="0" step="25000">
+    <label id="l_funeral">丧葬方式(自动预留费用)</label>
+    <select id="funeral">
+      <option value="15000" data-zh="传统土葬 (~$15,000)" data-en="Traditional burial (~$15,000)">传统土葬 (~$15,000)</option>
+      <option value="8000" data-zh="火葬含仪式 (~$8,000)" data-en="Cremation with service (~$8,000)" selected>火葬含仪式 (~$8,000)</option>
+      <option value="2500" data-zh="直接火化 (~$2,500)" data-en="Direct cremation (~$2,500)">直接火化 (~$2,500)</option>
+      <option value="1000" data-zh="水化葬 (~$1,000)" data-en="Aquamation (~$1,000)">水化葬 (~$1,000)</option>
+      <option value="3000" data-zh="海葬/撒骨灰 (~$3,000)" data-en="Sea burial / scattering (~$3,000)">海葬/撒骨灰 (~$3,000)</option>
+    </select>
+  </div>
+
+  <div class="card">
+    <h2 id="t_where">退休后住在哪里</h2>
+    <div class="pills" id="wherePills"></div>
+    <div id="destWrap" style="display:none">
+      <label id="l_dest">目的地</label>
+      <select id="dest"></select>
+      <div class="chk"><input type="checkbox" id="periodic" checked><span id="l_periodic">RRIF按定期支付(部分税收协定预扣降至15%)</span></div>
+    </div>
+    <div id="whereNote" class="warn" style="display:none"></div>
+    <div id="taxInfo" style="display:none"></div>
+  </div>
+
+  <div class="card">
+    <h2 id="t_when">我什么时候能退休?</h2>
+    <label id="l_desired">期望退休后月支出 ($,今日购买力)</label>
+    <input type="number" id="desired" value="5000" step="500">
+    <div id="whenResult" class="ok"></div>
+  </div>
+
+  <!-- ===== results ===== -->
+  <div class="card full" style="background:linear-gradient(135deg,#1f4e5f,#2e75b6);color:#fff;">
+    <h2 style="color:#fff;border-color:#e8734a;" id="t_result">测算结果</h2>
+    <div class="result-sub" style="color:#cfe0ea;" id="t_resultSub">按今天的购买力计,税后每月可持续支出:</div>
+    <div class="result-big" style="color:#fff;" id="bigNum">—</div>
+    <div id="resultNotes" style="margin-top:10px;font-size:13px;color:#dce9f0;"></div>
+    <button class="btn alt" id="mcBtn" style="margin-top:12px">市场波动测试(蒙特卡洛)</button>
+    <div id="mcOut" style="margin-top:8px;font-size:13px;color:#ffe9df;"></div>
+  </div>
+
+  <div class="card">
+    <h2 id="t_sources">收入构成(示例年份)</h2>
+    <table class="srcTable" id="srcTable"></table>
+    <div class="warn" id="bridgeWarn" style="display:none"></div>
+  </div>
+
+  <div class="card">
+    <h2 id="t_chart">资产变化曲线</h2>
+    <canvas id="chart" width="900" height="400"></canvas>
+    <div class="result-sub" id="chartNote"></div>
+  </div>
+
+  <div class="card full" id="destCard" style="display:none">
+    <h2 id="t_destCmp">海外养老目的地对比(单人舒适生活,约CAD/月)</h2>
+    <table class="destTable" id="destTable"></table>
+  </div>
+
+  <div class="card full">
+    <h2 id="t_scen">方案对比</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <input type="text" id="scenName" placeholder="方案名称(如:58岁退休)" style="flex:1;min-width:150px;padding:9px 10px;border:1px solid #cfd9de;border-radius:8px;font-size:14px;">
+      <button class="btn" id="saveScenBtn">保存当前方案</button>
+      <button class="btn alt" id="printBtn">导出PDF报告(打印)</button>
+    </div>
+    <table class="destTable" id="scenTable" style="margin-top:12px"></table>
+  </div>
+
+  <div class="card full">
+    <h2 id="t_edu">术语小课堂</h2>
+    <div id="eduBody"></div>
+    <h2 id="t_method" style="margin-top:18px">方法论与数据来源</h2>
+    <div id="methodBody" class="hint" style="font-size:13px"></div>
+  </div>
+</main>
+<footer id="t_disc">免责声明:本工具为估算级教育原型,使用2026年公开福利数据与简化税务模型,结果误差可达±15%或更多。GIS、税收协定与离境税规则高度依赖个人情况。重大财务决定请咨询持牌财务规划师及跨境税务专业人士。</footer>
+
+<script>
+// ===================== i18n =====================
+const D = {
+ zh:{title:"加拿大退休规划计算器",sub:"估算级原型 · 数据版本:2026 Q1 · 仅供教育参考",basics:"基本情况",curAge:"当前年龄",prov:"居住省份",mode:"规划模式",single:"单人",couple:"夫妻",spouse:"配偶信息",curAge2:"配偶当前年龄",retAge2:"配偶退休年龄",death2:"配偶预期寿命(规划到几岁)",income2:"配偶在加平均年收入 ($)",yrsWork2:"配偶在加工作年限",yrsRes2:"配偶在加居住年限",rrsp2:"配偶 RRSP ($)",tfsa2:"配偶 TFSA ($)",pension2:"配偶公司养老金 ($/月)",penStart2:"配偶养老金起领年龄",coupleHint:"配偶的CPP/OAS按其本人年限单独计算。非注册投资、房产、每年储蓄、遗产目标为家庭合并数字,填在其他卡片即可。",coupleNote:"夫妻模式假设:合格收入尽量均分省税(近似pension splitting);一方去世后家庭支出降至70%,其RRSP/RRIF免税转给配偶,遗属获其CPP的60%(合并封顶)与公司养老金的60%;首次去世时支付一份丧葬费,期末再预留一份。",qcNote:"魁省已按QPP计算(QPP与CPP费率和金额一致,2026年最高额相同);税务已含魁省65+年龄/独居/退休收入抵免及70+老人支援补贴(按单身估算)。QPP还可延至72岁领取(65岁后每月+0.7%),原型暂以70岁为上限。",income:"在加工作期间平均年收入 (CAD)",incomeHint:"指在加拿大工作那些年的职业生涯平均收入(按今日物价),不是退休前最后一年的工资。CPP按 收入÷YMPE($74,600) 计算且封顶100%:填$74,600以上的任何数结果完全相同($90K和$200K没有区别)。早年低、后来高就估个中间值;准确数字可登录 My Service Canada Account 查CPP Statement of Contributions。",retAge:"目标退休年龄",deathAge:"规划到几岁(预期寿命)",yrsWork:"退休时在加工作年限",yrsRes:"退休时在加居住年限",assets:"资产与储蓄",nonreg:"其他投资(非注册) ($)",pension:"公司养老金 ($/月)",penStart:"公司养老金开始领取年龄",save:"退休前每年新增储蓄 ($)",ret:"名义年回报率 %",infl:"通胀率 %",retHint:"名义回报率=账户对账单上的回报数字(含通胀)。工具自动扣除通胀,所有结果均按今天的购买力显示。例:回报5%、通胀2%,实际购买力年增约2.9%。",whenT:"我什么时候能退休?",desired:"期望退休后月支出 ($,今日购买力)",when_now:"✓ 现在就可以:按当前资产,AGE岁退休即可支撑每月$X至DEATH岁。",when_ok:"按当前储蓄与投资节奏,每月$X的生活最早可从 N 岁退休,支撑到DEATH岁。",when_no:"即使70岁退休也无法支撑每月$X到DEATH岁。可尝试提高储蓄、降低目标支出或调整回报假设。",lifeErr:"预期寿命需大于退休年龄,请重新选择。",taxInfo:"<b>离开加拿大的税务处理(要点)</b><br>· 离境税:离境日视同以市价卖出非注册投资等资产并缴增值税;RRSP/RRIF/TFSA与加拿大房产豁免<br>· 预扣税:CPP/OAS/养老金/RRIF按25%预扣(定期RRIF在部分税收协定下降至15%),预扣即为终税,通常无需再报加拿大税表<br>· 保持税务居民:继续按全球收入向加拿大报税,但保留免税额与累进低税级——收入较低或TFSA占比大时往往更划算<br>· 成为非税务居民:RRSP余额大、目的地税率低或有协定优惠时更有利;注意多数国家不承认TFSA的免税地位<br>· 离境当年的报税(departure return)较复杂,请务必咨询跨境税务师",propAmt:"卖房/换小房净所得 ($)",legacyT:"遗产与身后事",legacy:"想留下的遗产 ($,填0即“花光”)",funeral:"丧葬方式(自动预留费用)",where:"退休后住在哪里",stay:"留在加拿大",leave:"离开加拿大(非税务居民)",dest:"目的地",periodic:"RRIF按定期支付(部分税收协定预扣降至15%)",result:"测算结果",resultSub:"按今天的购买力计,税后每月可持续支出:",sources:"收入构成(示例年份)",chart:"资产变化曲线",destCmp:"海外养老目的地对比(单人舒适生活,约CAD/月)",age:"年龄",perMo:"/月",src_cpp:"CPP 加拿大养老金",src_oas:"OAS 老年保障金",src_gis:"GIS 低收入补贴",src_pen:"公司养老金",src_wd:"账户提取(税后)",src_tot:"税后合计",bridge:"⚠ 过桥期提示:你在RETAGE岁退休,但CPP最早60岁、OAS最早65岁才能领取。中间GAP年完全依靠自有资产,曲线前段下降较快是正常的。",oasStop:"⚠ OAS海外停发:你在加居住不足20年,成为非税务居民后OAS将在离境6个月后停发。再住满RE_MORE年即可终身海外领取——这可能值得推迟离开。",oasOk:"✓ 你在加居住已满20年,OAS可终身海外发放。",clawback:"注:收入较高年份OAS会被部分回收(2026年起点$95,323)。",estateNote:"已按遗产目标+丧葬费预留;剩余RRSP/RRIF在去世时按约30%估算清算税。",infeasible:"当前假设下资产不足以支撑到目标年龄。可尝试:推迟退休、提高储蓄、降低遗产目标或调整回报假设。",chartNote:"实线=总资产(今日购买力)。标记:C=开始领CPP,O=开始领OAS。",wh:"预扣税",whNote:"非税务居民:CPP/OAS/RRIF按25%预扣(定期RRIF在部分协定下15%)。无GIS资格。已失去省医保,请在生活费中计入医疗保险。",fit_good:"充裕",fit_mid:"够用",fit_bad:"偏紧",dest_note:"对比口径:你的可持续月支出 vs 当地单人舒适生活成本。",col:["目的地","月生活费","签证途径","你的支出水平"],
+scenT:"方案对比",scenName:"方案名称(如:58岁退休)",saveScen:"保存当前方案",printB:"导出PDF报告(打印)",mcB:"市场波动测试(蒙特卡洛)",mcOut:"考虑市场波动(年波动率11%,150次模拟):当前支出水平的长期成功率约 PCT%;若要90%把握,建议月支出不超过 M90。",scenCur:"当前(未保存)",scenCols:["方案","模式","省份","退休年龄","预期寿命","居住地","月支出",""],
+eduT:"术语小课堂",methodT:"方法论与数据来源",
+eduHTML:"<details><summary><b>CPP / QPP 加拿大养老金</b></summary><p>工作时强制缴费、退休后按缴费记录发放。2026年65岁开领最高$1,507.65/月,全国平均约$925。最早60岁(每提前1个月减0.6%),最晚70岁(比65岁多42%)。魁北克为QPP,费率与金额一致。没有居住要求,海外照发。</p></details><details><summary><b>OAS 老年保障金</b></summary><p>凭18岁后在加居住年限领取,与工作无关:住满40年拿满额($742.31/月,75岁后$816.54),不足按比例。关键规则:住满20年,出国后可终身领取;不满20年,离境6个月后停发。</p></details><details><summary><b>GIS 低收入补贴</b></summary><p>发给低收入OAS领取者,免税。单身最高$1,108.74/月(收入低于$22,488)。注意:RRSP/RRIF提取会按约50%比例减少GIS——低收入者常见策略是65岁前提前清空RRSP。</p></details><details><summary><b>RRSP → RRIF</b></summary><p>存入抵税、增长延税、提取时全额计税。71岁年底前必须转成RRIF,72岁起每年强制按比例提取(72岁5.40%,逐年上升)。去世时剩余余额一次性计税(转给配偶除外)。</p></details><details><summary><b>TFSA 免税账户</b></summary><p>存入不抵税,但增长和提取完全免税,且不计入收入——不影响OAS回收和GIS资格。退休提取顺序中最灵活的工具。注意:多数国家(如美国)不承认其免税地位。</p></details><details><summary><b>OAS回收(Clawback)</b></summary><p>2026年个人净收入超过$95,323后,每多$1回收$0.15的OAS,至约$154,708全部收回。大额RRIF提取是常见触发原因,夫妻收入分摊可缓解。</p></details><details><summary><b>非税务居民与预扣税</b></summary><p>切断主要居住联系(住所、配偶、受养人)后可成为非税务居民。此后CPP/OAS/RRIF等按25%预扣(税收协定可降,定期RRIF部分协定15%),预扣即终税。同时失去省医保。</p></details><details><summary><b>离境税(Departure Tax)</b></summary><p>离开加拿大当日,非注册投资等资产视同按市价卖出并缴增值税。RRSP/RRIF/TFSA与加拿大房产豁免。可提供担保申请缓缴。离境年报税复杂,建议请跨境税务师。</p></details><details><summary><b>Pension Splitting 收入分摊</b></summary><p>夫妻间可把最多50%的合格养老金收入(公司养老金、65+的RRIF提取)分给低收入一方报税,利用两份免税额和低税级,常年可省数千加元。</p></details>",
+methodHTML:"所有结果按今天的购买力显示(实际回报=名义回报−通胀)。税务按人计算:2026年联邦及各省税率表(CRA官网)、基本免税额、65+联邦年龄额与养老金抵免、魁省Line 361抵免及70+老人支援补贴;夫妻模式下合格收入自动均分(近似pension splitting)。GIS与OAS回收按公开公式估算。蒙特卡洛模拟以11%年化波动率随机化投资回报。数据版本:2026 Q1,来源:Canada.ca、CRA、Revenu Québec、Retirement Abroad Index 2026。本工具为教育用途估算,误差可达±15%,不构成投资、税务或法律建议。"},
+ en:{title:"Canadian Retirement Planner",sub:"Estimation-level prototype · Data version: 2026 Q1 · educational use only",basics:"Basics",curAge:"Current age",prov:"Province of residence",mode:"Planning mode",single:"Single",couple:"Couple",spouse:"Spouse Details",curAge2:"Spouse current age",retAge2:"Spouse retirement age",death2:"Spouse life expectancy (plan until age)",income2:"Spouse avg annual income in Canada ($)",yrsWork2:"Spouse years worked in Canada",yrsRes2:"Spouse years lived in Canada",rrsp2:"Spouse RRSP ($)",tfsa2:"Spouse TFSA ($)",pension2:"Spouse workplace pension ($/mo)",penStart2:"Spouse pension start age",coupleHint:"Spouse CPP/OAS are calculated from their own years. Non-registered investments, home proceeds, annual savings, and legacy are household totals — enter them once in the other cards.",coupleNote:"Couple assumptions: eligible income is split evenly to minimize tax (approximates pension splitting); after the first death household spending drops to 70%, RRSP/RRIF rolls tax-free to the survivor, who receives 60% of the deceased's CPP (combined cap) and 60% of their workplace pension; one funeral is paid at first death and one reserved at the end.",qcNote:"Quebec is calculated with QPP (identical rates and maximums to CPP in 2026); taxes include Quebec's 65+ age/living-alone/retirement-income credits and the 70+ senior assistance credit (single-person basis). QPP can also be deferred to 72 (+0.7%/mo after 65); this prototype caps at 70.",income:"Avg annual income while working in Canada (CAD)",incomeHint:"Your career-average earnings during your Canadian working years (in today's dollars), not your final salary. CPP uses income ÷ YMPE ($74,600), capped at 100%: any number above $74,600 gives the identical result ($90K = $200K). If earnings varied, estimate a midpoint; for exact figures see your CPP Statement of Contributions in My Service Canada Account.",retAge:"Target retirement age",deathAge:"Plan until age (life expectancy)",yrsWork:"Years worked in Canada by retirement",yrsRes:"Years lived in Canada by retirement",assets:"Assets & Savings",nonreg:"Non-registered investments ($)",pension:"Workplace pension ($/mo)",penStart:"Workplace pension start age",save:"Annual savings until retirement ($)",ret:"Nominal return %",infl:"Inflation %",retHint:"Nominal return = the number on your statements (includes inflation). The tool subtracts inflation automatically; all results are in today's dollars. E.g., 5% return with 2% inflation ≈ 2.9% real growth.",whenT:"When Can I Retire?",desired:"Desired monthly spending in retirement ($, today's dollars)",when_now:"✓ You can retire now: at age AGE your assets sustain $X/mo until DEATH.",when_ok:"At your current savings pace, $X/mo is sustainable retiring at age N (until DEATH).",when_no:"Even retiring at 70 cannot sustain $X/mo until DEATH. Try saving more, lowering target spending, or adjusting returns.",lifeErr:"Life expectancy must be greater than retirement age.",taxInfo:"<b>Tax treatment when leaving Canada (key points)</b><br>· Departure tax: deemed disposition of non-registered investments at fair market value on exit; RRSP/RRIF/TFSA and Canadian real estate are exempt<br>· Withholding: 25% on CPP/OAS/pension/RRIF (15% for periodic RRIF under some treaties); withholding is final — usually no Canadian return needed after<br>· Staying a tax resident: taxed on worldwide income but keeps credits and graduated low brackets — often better with lower income or a large TFSA<br>· Becoming non-resident: better with a large RRSP, low destination tax, or treaty benefits; note most countries don't recognize the TFSA's tax-free status<br>· The departure-year return is complex — consult a cross-border tax professional",propAmt:"Home sale / downsize proceeds ($)",legacyT:"Legacy & Final Arrangements",legacy:"Legacy to leave ($, 0 = spend it all)",funeral:"Funeral type (cost auto-reserved)",where:"Where will you live?",stay:"Stay in Canada",leave:"Leave Canada (non-resident)",dest:"Destination",periodic:"Periodic RRIF payments (15% treaty withholding where applicable)",result:"Results",resultSub:"Sustainable after-tax monthly spending, in today's dollars:",sources:"Income Sources (sample years)",chart:"Assets Over Time",destCmp:"Destination Comparison (comfortable single, ~CAD/mo)",age:"Age",perMo:"/mo",src_cpp:"CPP",src_oas:"OAS",src_gis:"GIS",src_pen:"Workplace pension",src_wd:"Account withdrawals (after tax)",src_tot:"Total after tax",bridge:"⚠ Bridge period: you retire at RETAGE but CPP starts at 60 and OAS at 65 at the earliest. For GAP years you rely entirely on your own assets — an early dip in the curve is normal.",oasStop:"⚠ OAS stops abroad: with under 20 years of Canadian residency, OAS stops 6 months after you leave. Staying RE_MORE more year(s) secures OAS for life abroad — possibly worth delaying departure.",oasOk:"✓ 20+ years of residency: your OAS is payable abroad for life.",clawback:"Note: OAS is partially clawed back in high-income years (2026 threshold $95,323).",estateNote:"Legacy target + funeral reserved; remaining RRSP/RRIF taxed ~30% at death (estimate).",infeasible:"Assets cannot sustain spending to the target age under these assumptions. Try retiring later, saving more, lowering the legacy target, or adjusting returns.",chartNote:"Line = total assets (today's dollars). Markers: C = CPP starts, O = OAS starts.",wh:"Withholding",whNote:"Non-resident: 25% withholding on CPP/OAS/RRIF (15% for periodic RRIF under some treaties). No GIS. Provincial health coverage lost — budget for private insurance.",fit_good:"Comfortable",fit_mid:"Adequate",fit_bad:"Tight",dest_note:"Comparison: your sustainable monthly spending vs. local comfortable single cost.",col:["Destination","Monthly cost","Visa route","Your budget fits as"],
+scenT:"Scenario Comparison",scenName:"Scenario name (e.g. Retire at 58)",saveScen:"Save current scenario",printB:"Export PDF report (print)",mcB:"Market volatility test (Monte Carlo)",mcOut:"With market volatility (11% annual, 150 simulations): current spending succeeds ~PCT% of the time; for 90% confidence, keep monthly spending under M90.",scenCur:"Current (unsaved)",scenCols:["Scenario","Mode","Province","Retire at","Life expectancy","Where","Monthly spending",""],
+eduT:"Glossary",methodT:"Methodology & Data Sources",
+eduHTML:"<details><summary><b>CPP / QPP</b></summary><p>Mandatory contributions while working; paid based on your record. 2026 max at 65: $1,507.65/mo (average ~$925). Earliest 60 (−0.6%/mo), latest 70 (+42% vs 65). Quebec's QPP has identical rates. No residency requirement — paid anywhere in the world.</p></details><details><summary><b>OAS</b></summary><p>Based on years lived in Canada after 18, not work: 40 years = full ($742.31/mo; $816.54 at 75+), otherwise prorated. Key rule: with 20+ years you keep OAS for life abroad; under 20 years it stops 6 months after leaving.</p></details><details><summary><b>GIS</b></summary><p>Tax-free supplement for low-income OAS recipients. Single max $1,108.74/mo (income under $22,488). RRSP/RRIF withdrawals reduce GIS ~50 cents per dollar — low-income retirees often drain RRSPs before 65.</p></details><details><summary><b>RRSP → RRIF</b></summary><p>Tax-deductible in, tax-deferred growth, fully taxed out. Must convert to RRIF by end of age 71; forced minimum withdrawals from 72 (5.40%, rising yearly). Remaining balance is taxed all at once at death (unless rolled to a spouse).</p></details><details><summary><b>TFSA</b></summary><p>No deduction going in, but growth and withdrawals are fully tax-free and don't count as income — no impact on OAS clawback or GIS. The most flexible drawdown tool. Note: most countries (e.g., the U.S.) don't recognize its tax-free status.</p></details><details><summary><b>OAS Clawback</b></summary><p>In 2026, each $1 of net income above $95,323 claws back $0.15 of OAS, fully recovered around $154,708. Large RRIF withdrawals are the usual trigger; income splitting helps.</p></details><details><summary><b>Non-resident & withholding</b></summary><p>Sever primary residential ties to become non-resident. CPP/OAS/RRIF then face 25% withholding (treaty may reduce; 15% for periodic RRIF under some treaties) as final tax. Provincial health coverage is lost.</p></details><details><summary><b>Departure Tax</b></summary><p>Deemed disposition of non-registered assets at fair market value on exit. RRSP/RRIF/TFSA and Canadian real estate are exempt. Deferral possible with security. Get cross-border tax help for the departure year.</p></details><details><summary><b>Pension Splitting</b></summary><p>Couples can shift up to 50% of eligible pension income (workplace pensions, RRIF at 65+) to the lower-income spouse, using two sets of credits and low brackets — often thousands saved per year.</p></details>",
+methodHTML:"All results are in today's dollars (real return = nominal − inflation). Tax is per person: 2026 federal and provincial brackets (CRA), basic personal amounts, federal 65+ age and pension credits, Quebec Line 361 credits and 70+ senior assistance; in couple mode eligible income is split evenly (approximating pension splitting). GIS and OAS clawback follow published formulas. Monte Carlo randomizes returns at 11% annual volatility. Data version: 2026 Q1 — Canada.ca, CRA, Revenu Québec, Retirement Abroad Index 2026. Educational estimates only (±15% or more); not investment, tax, or legal advice."}
+};
+let lang="zh";
+
+// ============ 年度更新数据区 UPDATE ANNUALLY (source: Canada.ca / CRA) ============
+const DATA_VERSION="2026 Q1";
+const CPP_MAX=1507.65, OAS_65=742.31, OAS_75=816.54, GIS_MAX=1108.74, GIS_CUT=22488,
+      CLAW_TH=95323, YMPE=74600, ESTATE_RRSP_TAX=0.30;
+const RRIF_MIN={72:.0540,73:.0553,74:.0567,75:.0582,76:.0598,77:.0617,78:.0636,79:.0658,80:.0682,81:.0708,82:.0738,83:.0771,84:.0808,85:.0851,86:.0899,87:.0955,88:.1021,89:.1099,90:.1192,91:.1306,92:.1449,93:.1634,94:.1879,95:.20};
+function rrifMin(age){if(age<72)return 0;return RRIF_MIN[Math.min(age,95)]||.20;}
+// 2026 federal + provincial brackets (source: CRA canada.ca, June 2026)
+const FED_BR=[[58523,.14],[117045,.205],[181440,.26],[258482,.29],[1e9,.33]], FED_BPA=16452;
+const PROV={
+ ON:{bpa:12989,br:[[53891,.0505],[107785,.0915],[150000,.1116],[220000,.1216],[1e9,.1316]]},
+ BC:{bpa:12932,br:[[50363,.056],[100728,.077],[115648,.105],[140430,.1229],[190405,.147],[265545,.168],[1e9,.205]]},
+ AB:{bpa:22323,br:[[61200,.08],[154259,.10],[185111,.12],[246813,.13],[370220,.14],[1e9,.15]]},
+ QC:{bpa:18952,br:[[53900,.14],[107800,.19],[131300,.24],[1e9,.2575]],abate:.165},
+ MB:{bpa:15969,br:[[47564,.108],[101200,.1275],[1e9,.174]]},
+ SK:{bpa:18991,br:[[54532,.105],[155805,.125],[1e9,.145]]},
+ NS:{bpa:11744,br:[[30995,.0879],[61991,.1495],[97417,.1667],[157124,.175],[1e9,.21]]},
+ NB:{bpa:13396,br:[[52333,.094],[104666,.14],[193861,.16],[1e9,.195]]},
+ NL:{bpa:11067,br:[[44678,.087],[89354,.145],[159528,.158],[223340,.178],[1e9,.198]]},
+ PE:{bpa:14250,br:[[33928,.095],[65820,.1347],[106890,.166],[142520,.1762],[1e9,.19]]}
+};
+const PROV_NAMES={ON:["安省 Ontario","Ontario"],BC:["卑诗省 BC","British Columbia"],AB:["阿省 Alberta","Alberta"],QC:["魁省 Quebec","Quebec"],MB:["曼省 Manitoba","Manitoba"],SK:["萨省 Saskatchewan","Saskatchewan"],NS:["新斯科舍 NS","Nova Scotia"],NB:["新不伦瑞克 NB","New Brunswick"],NL:["纽芬兰 NL","Newfoundland & Labrador"],PE:["爱德华王子岛 PEI","Prince Edward Island"]};
+let prov="ON";
+function bTax(t,br){let tax=0,prev=0;for(const[lim,r]of br){if(t>prev)tax+=(Math.min(t,lim)-prev)*r;prev=lim;if(t<=lim)break;}return tax;}
+function taxOn(t,age=64,penInc=0,alone=true){
+ const pd=PROV[prov]||PROV.ON;
+ // federal: BPA + age amount (65+, income-tested) + pension income credit
+ let fedCred=FED_BPA;
+ if(age>=65){fedCred+=Math.max(0,9208-0.15*Math.max(0,t-46400));fedCred+=Math.min(penInc,2000);}
+ let fed=Math.max(0,bTax(t,FED_BR)-FED_BR[0][1]*fedCred);
+ if(pd.abate)fed*=1-pd.abate;
+ // provincial
+ let pCred=pd.bpa;
+ if(prov==="QC"&&age>=65){ // QC line 361: age + living alone (if single) + retirement income (2026)
+  let amt=3986+(alone?2172:0)+Math.min(penInc,3541);
+  pCred+=Math.max(0,amt-0.1875*Math.max(0,t-42955));}
+ let ptax=Math.max(0,bTax(t,pd.br)-pd.br[0][1]*pCred);
+ // QC refundable senior assistance credit, 70+ single (approx 2026 params)
+ let refund=0;
+ if(prov==="QC"&&age>=70)refund=Math.max(0,2000-0.0531*Math.max(0,t-29500));
+ return fed+ptax-refund;}
+
+const DESTS=[
+ {zh:"中国",en:"China",lo:1200,hi:2500,vzh:"Q1/Q2家庭团聚签",ven:"Q1/Q2 family visa"},
+ {zh:"泰国",en:"Thailand",lo:1600,hi:2700,vzh:"O-A退休签(50+)",ven:"O-A retirement visa (50+)"},
+ {zh:"马来西亚",en:"Malaysia",lo:1500,hi:2500,vzh:"MM2H",ven:"MM2H"},
+ {zh:"菲律宾",en:"Philippines",lo:1400,hi:2500,vzh:"SRRV(50+)",ven:"SRRV (50+)"},
+ {zh:"越南",en:"Vietnam",lo:1100,hi:2000,vzh:"无退休签,需续签",ven:"No retirement visa"},
+ {zh:"墨西哥",en:"Mexico",lo:1400,hi:3400,vzh:"临时/永久居民签",ven:"Temp/perm resident visa"},
+ {zh:"葡萄牙",en:"Portugal",lo:2500,hi:3700,vzh:"D7被动收入签",ven:"D7 passive income visa"}];
+
+// ===================== UI state =====================
+let retAge=60, deathAge=90, leaveCanada=false, coupleMode=false;
+function pillGroup(id,vals,cur,cb,customOn){const el=document.getElementById(id);el.innerHTML="";
+ const isCustom=customOn||!vals.includes(cur);
+ vals.forEach(v=>{const b=document.createElement("div");b.className="pill"+(!isCustom&&v===cur?" on":"");b.textContent=v;
+  b.onclick=()=>{cb(v);pillGroup(id,vals,v,cb,false);calc();};el.appendChild(b);});
+ const ob=document.createElement("div");ob.className="pill"+(isCustom?" on":"");
+ ob.textContent=lang==="zh"?"其他":"Other";
+ ob.onclick=()=>{pillGroup(id,vals,cur,cb,true);const i=el.querySelector("input");if(i)i.focus();};
+ el.appendChild(ob);
+ if(isCustom){const inp=document.createElement("input");inp.type="number";inp.value=cur;
+  inp.style.cssText="width:80px;padding:8px 10px;border:1.5px solid var(--blue);border-radius:8px;font-size:14px;";
+  inp.oninput=()=>{const v=parseInt(inp.value);if(v>=18&&v<=110){cb(v);calc();}};
+  el.appendChild(inp);}}
+const RET_VALS=[40,50,55,60,65,70], DEATH_VALS=[50,60,70,80,90,100];
+function modePills(){const el=document.getElementById("modePills");el.innerHTML="";
+ [[D[lang].single,false],[D[lang].couple,true]].forEach(([t,v])=>{const b=document.createElement("div");
+  b.className="pill"+(coupleMode===v?" on":"");b.textContent=t;b.style.minWidth="100px";
+  b.onclick=()=>{coupleMode=v;document.getElementById("coupleCard").style.display=v?"block":"none";modePills();calc();};el.appendChild(b);});}
+function wherePills(){const el=document.getElementById("wherePills");el.innerHTML="";
+ [[D[lang].stay,false],[D[lang].leave,true]].forEach(([t,v])=>{const b=document.createElement("div");
+  b.className="pill"+(leaveCanada===v?" on":"");b.textContent=t;b.style.minWidth="140px";
+  b.onclick=()=>{leaveCanada=v;wherePills();calc();};el.appendChild(b);});}
+function initDest(){const s=document.getElementById("dest");s.innerHTML="";
+ DESTS.forEach((d,i)=>{const o=document.createElement("option");o.value=i;o.textContent=d[lang];s.appendChild(o);});}
+function initProv(){const s=document.getElementById("prov");const cur=s.value||"ON";s.innerHTML="";
+ for(const k of Object.keys(PROV)){const o=document.createElement("option");o.value=k;o.textContent=PROV_NAMES[k][lang==="zh"?0:1];s.appendChild(o);}
+ s.value=PROV[cur]?cur:"ON";}
+function toggleLang(){lang=lang==="zh"?"en":"zh";document.getElementById("langBtn").textContent=lang==="zh"?"EN":"中文";applyLang();}
+function applyLang(){const t=D[lang];
+ const map={t_title:"title",t_sub:"sub",t_basics:"basics",l_curAge:"curAge",l_prov:"prov",l_income:"income",l_mode:"mode",t_spouse:"spouse",l_curAge2:"curAge2",l_retAge2:"retAge2",l_death2:"death2",l_income2:"income2",l_yrsWork2:"yrsWork2",l_yrsRes2:"yrsRes2",l_rrsp2:"rrsp2",l_tfsa2:"tfsa2",l_pension2:"pension2",l_penStart2:"penStart2",l_retAge:"retAge",l_deathAge:"deathAge",l_yrsWork:"yrsWork",l_yrsRes:"yrsRes",t_assets:"assets",l_nonreg:"nonreg",l_pension:"pension",l_penStart:"penStart",l_save:"save",l_ret:"ret",l_infl:"infl",l_propAmt:"propAmt",t_legacy:"legacyT",l_legacy:"legacy",l_funeral:"funeral",t_where:"where",l_dest:"dest",l_periodic:"periodic",t_result:"result",t_resultSub:"resultSub",t_sources:"sources",t_chart:"chart",t_destCmp:"destCmp",t_when:"whenT",l_desired:"desired",t_scen:"scenT",t_edu:"eduT",t_method:"methodT",saveScenBtn:"saveScen",printBtn:"printB",mcBtn:"mcB"};
+ for(const[id,k]of Object.entries(map))document.getElementById(id).textContent=t[k];
+ document.getElementById("retHint").textContent=t.retHint;
+ document.getElementById("incomeHint").textContent=t.incomeHint;
+ document.getElementById("t_disc").textContent=lang==="zh"
+  ?"免责声明:本工具为估算级教育原型,使用2026年公开福利数据与简化税务模型,结果误差可达±15%或更多。GIS、税收协定与离境税规则高度依赖个人情况。重大财务决定请咨询持牌财务规划师及跨境税务专业人士。"
+  :"Disclaimer: This is an estimation-level educational prototype using 2026 public benefit data and a simplified tax model; results may vary ±15% or more. GIS, treaty, and departure-tax outcomes are highly individual. Consult a licensed financial planner and cross-border tax professional before major decisions.";
+ document.querySelectorAll("#funeral option").forEach(o=>o.textContent=o.dataset[lang]);
+ document.getElementById("coupleHint").textContent=t.coupleHint;
+ pillGroup("retPills",RET_VALS,retAge,v=>retAge=v);
+ pillGroup("deathPills",DEATH_VALS,deathAge,v=>deathAge=v);
+ document.getElementById("scenName").placeholder=t.scenName;
+ document.getElementById("eduBody").innerHTML=t.eduHTML;
+ document.getElementById("methodBody").textContent=t.methodHTML;
+ document.getElementById("mcOut").textContent="";
+ initDest();initProv();wherePills();modePills();calc();}
+
+// ===================== core model =====================
+function inputs(){const g=id=>parseFloat(document.getElementById(id).value)||0;
+ return{curAge:g("curAge"),income:g("income"),yrsWork:g("yrsWork"),yrsRes:g("yrsRes"),
+  rrsp:g("rrsp"),tfsa:g("tfsa"),nonreg:g("nonreg"),pen:g("pension"),penStart:g("penStart")||65,save:g("save"),
+  curAge2:g("curAge2"),retAge2:g("retAge2"),death2:g("death2"),income2:g("income2"),yrsWork2:g("yrsWork2"),yrsRes2:g("yrsRes2"),rrsp2:g("rrsp2"),tfsa2:g("tfsa2"),pen2:g("pension2"),penStart2:g("penStart2")||65,
+  r:g("retRate")/100,i:g("infl")/100,prop:g("propAmt"),legacy:g("legacy"),
+  funeral:parseFloat(document.getElementById("funeral").value),
+  periodic:document.getElementById("periodic").checked};}
+
+function benefits(p){
+ // CPP: starts at clamp(retAge,60,70)
+ const cppStart=Math.min(Math.max(retAge,60),70);
+ let cpp=CPP_MAX*Math.min(p.yrsWork/40,1)*Math.min(p.income/YMPE,1);
+ cpp*= cppStart<65 ? 1-0.006*12*(65-cppStart) : 1+0.007*12*(cppStart-65);
+ // OAS: starts max(65,retAge) cap 70
+ const oasStart=Math.min(Math.max(retAge,65),70);
+ let oasEligible=!leaveCanada||p.yrsRes>=20;
+ let oas=oasEligible?OAS_65*Math.min(p.yrsRes/40,1)*(oasStart>65?1+0.006*12*(oasStart-65):1):0;
+ return{cpp,cppStart,oas,oasStart,oasEligible};
+}
+function whRate(p){return p.periodic?0.15:0.25;} // simplified single non-res rate on all flows
+
+function simulate(m,p,vol,seed){ // m = net monthly HOUSEHOLD spending (today's $). returns {final, rows}
+ const rr=(1+p.r)/(1+p.i)-1;
+ let gf=()=>1+rr;
+ if(vol){let s=(seed||1)|0;
+  const rng=()=>{s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};
+  const gauss=()=>{const u=Math.max(rng(),1e-9),v=rng();return Math.sqrt(-2*Math.log(u))*Math.cos(6.2831853*v);};
+  gf=()=>Math.max(0.3,1+p.r+gauss()*vol)/(1+p.i);}
+ const P=[{cur:p.curAge,ret:retAge,death:deathAge,yw:p.yrsWork,yr:p.yrsRes,inc:p.income,reg:p.rrsp,tf:p.tfsa,pen:p.pen,ps:p.penStart}];
+ if(coupleMode)P.push({cur:p.curAge2,ret:p.retAge2,death:p.death2,yw:p.yrsWork2,yr:p.yrsRes2,inc:p.income2,reg:p.rrsp2,tf:p.tfsa2,pen:p.pen2,ps:p.penStart2});
+ P.forEach(q=>{const st=Math.min(Math.max(q.ret,60),70);
+  let cpp=CPP_MAX*Math.min(q.yw/40,1)*Math.min(q.inc/YMPE,1);
+  q.cpp=st<65?cpp*(1-0.006*12*(65-st)):cpp*(1+0.007*12*(st-65));
+  q.cppStart=st;q.oasStart=Math.min(Math.max(q.ret,65),70);
+  const el=!leaveCanada||q.yr>=20;
+  q.oas=el?OAS_65*Math.min(q.yr/40,1)*(q.oasStart>65?1+0.006*12*(q.oasStart-65):1):0;
+  q.dead=false;});
+ let free=p.nonreg+P.reduce((s,q)=>s+q.tf,0);
+ const acc=Math.max(0,retAge-p.curAge);
+ for(let y=0;y<acc;y++){const f=gf();P.forEach(q=>q.reg=(q.reg+p.save*0.5/P.length)*f);free=(free+p.save*0.5)*f;}
+ free+=p.prop;
+ const endT=Math.max(...P.map(q=>q.death-q.cur));
+ const rows=[];
+ for(let ty=acc;ty<endT;ty++){
+  // process deaths: rollover to survivor
+  for(const q of P){if(!q.dead&&q.cur+ty>=q.death){q.dead=true;
+   const s=P.find(x=>!x.dead);
+   if(s){s.reg+=q.reg;q.reg=0;
+    s.cpp=Math.min(CPP_MAX,s.cpp+0.6*q.cpp);
+    s.pen+=0.6*q.pen;free-=p.funeral;}}}
+  const alive=P.filter(q=>!q.dead);
+  if(!alive.length)break;
+  const need=(P.length===2&&alive.length===1?m*0.7:m)*12;
+  alive.forEach(q=>{q.age=q.cur+ty;
+   q.cppNow=q.age>=q.cppStart?q.cpp:0;
+   q.oasNow=q.age>=q.oasStart?(q.age>=75?q.oas*OAS_75/OAS_65:q.oas):0;
+   q.penNow=q.age>=q.ps?q.pen:0;});
+  const totReg=alive.reduce((s,q)=>s+q.reg,0);
+  const forced=alive.reduce((s,q)=>s+(q.age>=72?q.reg*rrifMin(q.age):0),0);
+  const netOf=(W)=>{
+   // taxable per person: own CPP/OAS fixed; pension + withdrawals split to equalize (approx. income splitting)
+   const fixed=alive.map(q=>(q.cppNow+q.oasNow)*12);
+   const pool=alive.reduce((s,q)=>s+q.penNow*12,0)+W;
+   let tx;
+   if(alive.length===1)tx=[fixed[0]+pool];
+   else{const lo=Math.min(...fixed),hi=Math.max(...fixed);
+    const fill=Math.min(pool,hi-lo);
+    tx=fixed.map(f=>f===lo?f+fill:f);
+    const rem=pool-fill;tx=tx.map(f=>f+rem/alive.length);}
+   let net=0,gisInc=0,oasTot=0;
+   alive.forEach((q,i)=>{const t=tx[i];
+    if(leaveCanada){net+=t*(1-whRate(p));oasTot+=q.oasNow;return;}
+    const claw=Math.max(0,Math.min(q.oasNow*12,0.15*Math.max(0,t-CLAW_TH)));
+    const penShare=Math.max(0,t-(q.cppNow+q.oasNow)*12);
+    net+=t-taxOn(t,q.age,penShare,alive.length===1)-claw;
+    oasTot+=q.oasNow-claw/12;
+    gisInc+=t-q.oasNow*12;});
+   let gis=0;
+   if(!leaveCanada){
+    if(alive.length===2)gis=Math.max(0,2*667.41*12-0.5*Math.max(0,gisInc));
+    else if(gisInc<GIS_CUT)gis=Math.max(0,GIS_MAX*12-0.5*Math.max(0,gisInc));}
+   return{net:net+gis,gis:gis/12,oasTot};};
+  let W=forced,res=netOf(W),iter=0;
+  while(res.net<need&&W<totReg&&iter<40){W=Math.min(totReg,W+(need-res.net)/0.62);res=netOf(W);iter++;}
+  alive.forEach(q=>{if(totReg>0)q.reg=Math.max(0,q.reg-W*q.reg/totReg);});
+  let net=res.net;
+  if(net>=need){free+=net-need;}
+  else{const f=Math.min(free,need-net);free-=f;net+=f;}
+  const shortfall=need-net>1;
+  const cppS=alive.reduce((s,q)=>s+q.cppNow,0),penS=alive.reduce((s,q)=>s+q.penNow,0);
+  rows.push({age:p.curAge+ty,cpp:cppS,oas:res.oasTot,gis:res.gis,pen:penS,
+   wdNet:Math.max(0,net/12-(cppS+res.oasTot+res.gis+penS)),total:net/12,
+   assets:free+P.reduce((s,q)=>s+q.reg,0),shortfall});
+  if(shortfall){return{final:-(need-net)*(endT-ty),rows};}
+  const f2=gf();P.forEach(q=>q.reg*=f2);free*=f2;
+ }
+ const regEnd=P.reduce((s,q)=>s+q.reg,0);
+ return{final:free+regEnd*(1-(leaveCanada?whRate(p):ESTATE_RRSP_TAX)),rows};
+}
+
+function sustainableAt(cand,p){const saved=retAge;retAge=cand;
+ let lo=0,hi=60000;for(let k=0;k<40;k++){const mid=(lo+hi)/2;
+  if(simulate(mid,p).final>=p.legacy+p.funeral)lo=mid;else hi=mid;}
+ retAge=saved;return lo;}
+function whenCanIRetire(p,desired){if(desired<=0)return null;
+ for(let cand=Math.ceil(p.curAge);cand<=70;cand++){
+  if(cand>=deathAge)continue;
+  if(sustainableAt(cand,p)>=desired)return cand;}
+ return null;}
+
+// ===================== scenarios & Monte Carlo =====================
+function loadScens(){try{return JSON.parse(localStorage.getItem("retire_scen")||"[]");}catch(e){return window._scen||[];}}
+function storeScens(a){try{localStorage.setItem("retire_scen",JSON.stringify(a));}catch(e){window._scen=a;}}
+function whereLabel(){return leaveCanada?DESTS[+document.getElementById("dest").value][lang]:(lang==="zh"?"加拿大":"Canada");}
+function saveScen(){const nameEl=document.getElementById("scenName");
+ const name=nameEl.value.trim()||((lang==="zh"?"方案":"Scenario")+" "+(loadScens().length+1));
+ const a=loadScens();
+ a.push({name,mode:coupleMode,prov,retAge,deathAge,where:whereLabel(),m:Math.round(window.lastM||0)});
+ storeScens(a);nameEl.value="";renderScen();}
+function delScen(i){const a=loadScens();a.splice(i,1);storeScens(a);renderScen();}
+function renderScen(){const t=D[lang];const el=document.getElementById("scenTable");
+ let h="<tr>"+t.scenCols.map(c=>`<th>${c}</th>`).join("")+"</tr>";
+ const rowH=(s,cur,i)=>`<tr${cur?' style="background:#eef5f8;font-weight:600"':''}><td>${s.name}</td><td>${s.mode?t.couple:t.single}</td><td>${s.prov}</td><td>${s.retAge}</td><td>${s.deathAge}</td><td>${s.where}</td><td>$${(s.m||0).toLocaleString()}${t.perMo}</td><td>${cur?"":'<span style="color:var(--accent);cursor:pointer" onclick="delScen('+i+')">✕</span>'}</td></tr>`;
+ h+=rowH({name:t.scenCur,mode:coupleMode,prov,retAge,deathAge,where:whereLabel(),m:Math.round(window.lastM||0)},true);
+ loadScens().forEach((s,i)=>h+=rowH(s,false,i));
+ el.innerHTML=h;}
+function runMC(){const p=inputs(),t=D[lang];const target=p.legacy+p.funeral;const m=window.lastM||0;
+ const out=document.getElementById("mcOut");if(!m){out.textContent="—";return;}
+ out.textContent="...";
+ setTimeout(()=>{
+  const N=150,vol=0.11;
+  const rate=mm=>{let s=0;for(let i=0;i<N;i++)if(simulate(mm,p,vol,i*7919+13).final>=target)s++;return s/N;};
+  const pc=rate(m);
+  let lo=0,hi=m;for(let k=0;k<12;k++){const mid=(lo+hi)/2;if(rate(mid)>=0.9)lo=mid;else hi=mid;}
+  out.textContent=t.mcOut.replace("PCT",Math.round(pc*100)).replace("M90","$"+Math.round(lo).toLocaleString());},30);}
+
+function calc(){
+ const p=inputs(),b=benefits(p),t=D[lang];
+ prov=document.getElementById("prov").value||"ON";
+ const pn=document.getElementById("provNote");
+ if(prov==="QC"){pn.style.display="block";pn.textContent=t.qcNote;}else pn.style.display="none";
+ if(deathAge<=retAge){document.getElementById("bigNum").textContent="—";
+  document.getElementById("resultNotes").textContent=t.lifeErr;
+  document.getElementById("whenResult").textContent="";return;}
+ const target=p.legacy+p.funeral;
+ let lo=0,hi=60000,best=null;
+ for(let k=0;k<48;k++){const mid=(lo+hi)/2;const s=simulate(mid,p);
+  if(s.final>=target){lo=mid;best=s;}else hi=mid;}
+ const m=lo;
+ if(!best||m<10){document.getElementById("bigNum").textContent="—";
+  document.getElementById("resultNotes").textContent=t.infeasible;return;}
+ document.getElementById("bigNum").textContent="$"+Math.round(m).toLocaleString()+" CAD"+t.perMo;
+ let notes=[t.estateNote];
+ if(coupleMode)notes.push(t.coupleNote);
+ if(!leaveCanada)notes.push(t.clawback); else notes.push(t.whNote);
+ document.getElementById("resultNotes").innerHTML=notes.map(n=>"· "+n).join("<br>");
+ // income table: sample ages
+ const samples=[...new Set([retAge,55,Math.max(retAge,b.cppStart),Math.max(retAge,b.oasStart),75,Math.min(deathAge-1,85)])].filter(a=>a>=retAge&&a<deathAge).sort((x,y)=>x-y);
+ const rowsByAge=Object.fromEntries(best.rows.map(r=>[r.age,r]));
+ const cppHdr=prov==="QC"?(lang==="zh"?"QPP 魁北克养老金":"QPP"):t.src_cpp;
+ let html=`<tr><th>${t.age}</th><th>${cppHdr}</th><th>${t.src_oas}</th><th>${t.src_gis}</th><th>${t.src_pen}</th><th>${t.src_wd}</th><th><b>${t.src_tot}</b></th></tr>`;
+ samples.forEach(a=>{const r=rowsByAge[a];if(!r)return;
+  html+=`<tr><td><b>${a}</b></td><td>$${Math.round(r.cpp)}</td><td>$${Math.round(r.oas)}</td><td>$${Math.round(r.gis)}</td><td>$${Math.round(r.pen)}</td><td>$${Math.round(r.wdNet)}</td><td><b>$${Math.round(r.total).toLocaleString()}</b></td></tr>`;});
+ document.getElementById("srcTable").innerHTML=html;
+ // bridge warning
+ const bw=document.getElementById("bridgeWarn");
+ if(retAge<b.cppStart||retAge<b.oasStart){bw.style.display="block";
+  bw.textContent=t.bridge.replace("RETAGE",retAge).replace("GAP",Math.max(b.cppStart,65)-retAge);}
+ else bw.style.display="none";
+ // where note
+ const wn=document.getElementById("whereNote");
+ document.getElementById("destWrap").style.display=leaveCanada?"block":"none";
+ document.getElementById("destCard").style.display=leaveCanada?"block":"none";
+ const ti=document.getElementById("taxInfo");
+ if(leaveCanada){wn.style.display="block";
+  if(p.yrsRes>=20){wn.className="ok";wn.textContent=t.oasOk;}
+  else{wn.className="warn";wn.textContent=t.oasStop.replace("RE_MORE",Math.ceil(20-p.yrsRes));}
+  ti.style.display="block";ti.className="warn";ti.innerHTML=t.taxInfo;
+  destTable(m);}
+ else{wn.style.display="none";ti.style.display="none";}
+ // when can I retire
+ const desired=parseFloat(document.getElementById("desired").value)||0;
+ const wr=document.getElementById("whenResult");
+ const n=whenCanIRetire(p,desired);
+ const dTxt="$"+Math.round(desired).toLocaleString();
+ if(n===null){wr.className="warn";wr.textContent=t.when_no.replace("X",dTxt.slice(1)).replace("DEATH",deathAge);}
+ else if(n<=p.curAge){wr.className="ok";wr.textContent=t.when_now.replace("AGE",p.curAge).replace("X",dTxt.slice(1)).replace("DEATH",deathAge);}
+ else{wr.className="ok";wr.textContent=t.when_ok.replace("X",dTxt.slice(1)).replace("N",n).replace("DEATH",deathAge);}
+ drawChart(best.rows,b,p);
+ document.getElementById("chartNote").textContent=t.chartNote;
+ window.lastM=m;
+ document.getElementById("mcOut").textContent="";
+ renderScen();
+}
+
+function destTable(m){const t=D[lang];
+ const mult=coupleMode?1.5:1;
+ document.getElementById("t_destCmp").textContent=t.destCmp+(coupleMode?(lang==="zh"?"(夫妻按单人×1.5估)":" (couple ≈ single ×1.5)"):"");
+ let h=`<tr><th>${t.col[0]}</th><th>${t.col[1]}</th><th>${t.col[2]}</th><th>${t.col[3]}</th></tr>`;
+ DESTS.forEach(d=>{
+  const lo=Math.round(d.lo*mult),hi=Math.round(d.hi*mult);
+  let tag,cls;
+  if(m>=hi){tag=t.fit_good;cls="good";}else if(m>=lo){tag=t.fit_mid;cls="mid";}else{tag=t.fit_bad;cls="bad";}
+  h+=`<tr><td><b>${d[lang]}</b></td><td>$${lo.toLocaleString()}–$${hi.toLocaleString()}</td><td>${lang==="zh"?d.vzh:d.ven}</td><td><span class="tag ${cls}">${tag}</span></td></tr>`;});
+ h+=`<tr><td colspan="4" style="color:var(--muted);font-size:12px">${t.dest_note}</td></tr>`;
+ document.getElementById("destTable").innerHTML=h;}
+
+function drawChart(rows,b,p){
+ const c=document.getElementById("chart"),x=c.getContext("2d");
+ x.clearRect(0,0,c.width,c.height);
+ if(!rows.length)return;
+ const W=c.width,H=c.height,padL=70,padB=34,padT=16,padR=12;
+ const maxV=Math.max(...rows.map(r=>r.assets),1);
+ const a0=rows[0].age,a1=rows[rows.length-1].age;
+ const X=a=>padL+(a-a0)/(a1-a0||1)*(W-padL-padR);
+ const Y=v=>H-padB-(v/maxV)*(H-padB-padT);
+ x.strokeStyle="#dfe8ec";x.fillStyle="#8aa0aa";x.font="16px sans-serif";x.lineWidth=1;
+ for(let g=0;g<=4;g++){const v=maxV*g/4,y=Y(v);
+  x.beginPath();x.moveTo(padL,y);x.lineTo(W-padR,y);x.stroke();
+  x.fillText("$"+(v>=1e6?(v/1e6).toFixed(1)+"M":Math.round(v/1000)+"k"),4,y+5);}
+ for(let a=Math.ceil(a0/10)*10;a<=a1;a+=10){x.fillText(a,X(a)-8,H-8);}
+ // area
+ x.beginPath();x.moveTo(X(rows[0].age),Y(rows[0].assets));
+ rows.forEach(r=>x.lineTo(X(r.age),Y(r.assets)));
+ x.lineTo(X(a1),Y(0));x.lineTo(X(a0),Y(0));x.closePath();
+ x.fillStyle="rgba(46,117,182,.15)";x.fill();
+ x.beginPath();x.moveTo(X(rows[0].age),Y(rows[0].assets));
+ rows.forEach(r=>x.lineTo(X(r.age),Y(r.assets)));
+ x.strokeStyle="#2e75b6";x.lineWidth=3;x.stroke();
+ // markers
+ [[b.cppStart,"C"],[b.oasStart,"O"]].forEach(([a,l])=>{
+  if(a>=a0&&a<=a1){const r=rows.find(q=>q.age===a);const y=r?Y(r.assets):Y(0);
+   x.fillStyle="#e8734a";x.beginPath();x.arc(X(a),y,7,0,7);x.fill();
+   x.fillStyle="#fff";x.font="bold 11px sans-serif";x.fillText(l,X(a)-4,y+4);x.font="16px sans-serif";}});
+}
+
+// ===================== init =====================
+pillGroup("retPills",RET_VALS,retAge,v=>retAge=v);
+pillGroup("deathPills",DEATH_VALS,deathAge,v=>deathAge=v);
+initDest();initProv();wherePills();
+document.getElementById("saveScenBtn").onclick=saveScen;
+document.getElementById("printBtn").onclick=()=>window.print();
+document.getElementById("mcBtn").onclick=runMC;
+document.querySelectorAll("input,select").forEach(e=>{if(e.id!=="scenName")e.addEventListener("input",calc);});
+applyLang();
+</script>
+</body>
+</html>
