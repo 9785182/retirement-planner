@@ -13,9 +13,9 @@ header h1{font-size:21px;font-weight:700;letter-spacing:.5px;}
 header .sub{font-size:12px;opacity:.8;margin-top:2px;}
 .langbtn{background:rgba(255,255,255,.92);color:var(--navy);border:none;border-radius:20px;padding:8px 18px;font-size:14px;cursor:pointer;font-weight:600;transition:all .15s;}
 .langbtn:hover{background:#fff;transform:translateY(-1px);box-shadow:0 3px 8px rgba(0,0,0,.2);}
-main{max-width:1080px;margin:0 auto;padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-@media(max-width:860px){main{grid-template-columns:1fr;}}
-.card{background:var(--card);border-radius:16px;padding:22px;box-shadow:0 2px 10px rgba(31,78,95,.07);border:1px solid #e6edf1;transition:box-shadow .2s;}
+main{max-width:1080px;margin:0 auto;padding:20px;column-count:2;column-gap:20px;}
+@media(max-width:860px){main{column-count:1;}}
+.card{background:var(--card);border-radius:16px;padding:22px;box-shadow:0 2px 10px rgba(31,78,95,.07);border:1px solid #e6edf1;transition:box-shadow .2s;margin-bottom:20px;break-inside:avoid;}
 .card:hover{box-shadow:0 6px 20px rgba(31,78,95,.13);}
 .card h2{font-size:16px;color:var(--navy);margin-bottom:14px;border-left:4px solid var(--accent);padding-left:10px;}
 label{display:block;font-size:13px;color:var(--muted);margin:12px 0 4px;}
@@ -52,7 +52,7 @@ details p{margin-top:6px;color:var(--ink);}
 .ok{background:#eef7f1;border-left:4px solid var(--green);padding:10px 12px;border-radius:6px;font-size:13px;margin-top:10px;}
 canvas{width:100%;height:260px;margin-top:8px;}
 footer{max-width:1080px;margin:0 auto;padding:16px 24px 40px;font-size:12px;color:var(--muted);}
-.full{grid-column:1/-1;}
+.full{column-span:all;}
 .destTable{width:100%;border-collapse:collapse;font-size:13px;}
 .destTable td,.destTable th{padding:7px 8px;border-bottom:1px solid #e4ebee;text-align:left;}
 .destTable th{background:#eef4f7;color:var(--navy);}
@@ -92,6 +92,11 @@ footer{max-width:1080px;margin:0 auto;padding:16px 24px 40px;font-size:12px;colo
       <div><label id="l_yrsWork">退休时在加工作年限</label><input type="number" id="yrsWork" value="" min="0" max="50"></div>
       <div><label id="l_yrsRes">退休时在加居住年限</label><input type="number" id="yrsRes" value="" min="0" max="60"></div>
     </div>
+    <div class="row2">
+      <div><label id="l_cppAge">CPP/QPP开始领取年龄 (60-70)</label><input type="number" id="cppAge" value="65" min="60" max="72"></div>
+      <div><label id="l_oasAge">OAS开始领取年龄 (65-70)</label><input type="number" id="oasAge" value="65" min="65" max="70"></div>
+    </div>
+    <div class="hint" id="benefitHint"></div>
   </div>
 
   <div class="card" id="coupleCard" style="display:none">
@@ -116,38 +121,50 @@ footer{max-width:1080px;margin:0 auto;padding:16px 24px 40px;font-size:12px;colo
       <div><label id="l_pension2">配偶公司养老金 ($/月)</label><input type="number" id="pension2" value="0" step="100"></div>
       <div><label id="l_penStart2">配偶养老金起领年龄</label><input type="number" id="penStart2" value="65" min="50" max="71"></div>
     </div>
+    <div class="row2">
+      <div><label id="l_cppAge2">配偶CPP/QPP开始领取年龄</label><input type="number" id="cppAge2" value="65" min="60" max="72"></div>
+      <div><label id="l_oasAge2">配偶OAS开始领取年龄 (65-70)</label><input type="number" id="oasAge2" value="65" min="65" max="70"></div>
+    </div>
+    <div class="row2">
+      <div><label id="l_otherInc2">配偶退休后每月其他收入(税前) ($)</label><input type="number" id="otherInc2" value="0" step="100"></div>
+      <div><label id="l_otherEnd2">该收入持续到几岁</label><input type="number" id="otherEnd2" value="90" min="40" max="110"></div>
+    </div>
     <div class="hint" id="coupleHint"></div>
   </div>
 
   <div class="card">
-    <h2 id="t_assets">总资产</h2>
+    <h2 id="t_assets">本人资产</h2>
     <div class="row2">
       <div><label>RRSP ($)</label><input type="number" id="rrsp" value="0" step="10000"></div>
       <div><label>TFSA ($)</label><input type="number" id="tfsa" value="0" step="5000"></div>
     </div>
     <div class="row2">
-      <div><label id="l_nonreg">其他投资(非注册) ($)</label><input type="number" id="nonreg" value="0" step="5000"></div>
       <div><label id="l_pension">公司养老金 ($/月)</label><input type="number" id="pension" value="0" step="100"></div>
-    </div>
-    <div class="row2">
       <div><label id="l_penStart">公司养老金开始领取年龄</label><input type="number" id="penStart" value="65" min="50" max="71"></div>
-      <div></div>
-    </div>
-    <div class="row2">
-      <div><label id="l_save">退休前每年新增储蓄 ($)</label><input type="number" id="save" value="0" step="5000"></div>
-      <div><label id="l_ret">名义年回报率 %</label><input type="number" id="retRate" value="5" step="0.5"></div>
-    </div>
-    <div class="row2">
-      <div><label id="l_infl">通胀率 %</label><input type="number" id="infl" value="2" step="0.5"></div>
-      <div><label id="l_propAmt">卖房/换小房净所得 ($)</label><input type="number" id="propAmt" value="0" step="25000"></div>
     </div>
     <div class="row2">
       <div><label id="l_otherInc">退休后每月其他收入(租金/兼职等,税前) ($)</label><input type="number" id="otherInc" value="0" step="100"></div>
       <div><label id="l_otherEnd">该收入持续到几岁</label><input type="number" id="otherEnd" value="90" min="40" max="110"></div>
     </div>
+  </div>
+
+  <div class="card">
+    <h2 id="t_house">家庭共同项(投资/房产/负债/假设)</h2>
     <div class="row2">
+      <div><label id="l_nonreg">其他投资(非注册,家庭合并) ($)</label><input type="number" id="nonreg" value="0" step="5000"></div>
+      <div><label id="l_save">退休前每年新增储蓄(家庭合并) ($)</label><input type="number" id="save" value="0" step="5000"></div>
+    </div>
+    <div class="row2">
+      <div><label id="l_propAmt">卖房/换小房净所得 ($)</label><input type="number" id="propAmt" value="0" step="25000"></div>
       <div><label id="l_debtPay">每月还贷(房贷/车贷等) ($/月)</label><input type="number" id="debtPay" value="0" step="100"></div>
+    </div>
+    <div class="row2">
       <div><label id="l_debtEnd">还到几岁(还清年龄)</label><input type="number" id="debtEnd" value="0" min="0" max="110"></div>
+      <div><label id="l_ret">名义年回报率 %</label><input type="number" id="retRate" value="5" step="0.5"></div>
+    </div>
+    <div class="row2">
+      <div><label id="l_infl">通胀率 %</label><input type="number" id="infl" value="2" step="0.5"></div>
+      <div></div>
     </div>
     <div class="hint" id="debtHint"></div>
     <div class="hint" id="retHint"></div>
@@ -167,6 +184,13 @@ footer{max-width:1080px;margin:0 auto;padding:16px 24px 40px;font-size:12px;colo
     </select>
   </div>
 
+  <div class="card" style="border:2px solid var(--accent);background:linear-gradient(180deg,#ffffff,#fdf5ee);">
+    <h2 id="t_when" style="font-size:18px;">我什么时候能退休?</h2>
+    <label id="l_desired">期望退休后月支出 ($,今日购买力)</label>
+    <input type="number" id="desired" value="0" step="500">
+    <div id="whenResult" class="ok" style="margin-top:14px;font-size:18px;font-weight:700;line-height:1.6;"></div>
+  </div>
+
   <div class="card">
     <h2 id="t_where">退休后住在哪里</h2>
     <div class="pills" id="wherePills"></div>
@@ -177,13 +201,6 @@ footer{max-width:1080px;margin:0 auto;padding:16px 24px 40px;font-size:12px;colo
     </div>
     <div id="whereNote" class="warn" style="display:none"></div>
     <div id="taxInfo" style="display:none"></div>
-  </div>
-
-  <div class="card">
-    <h2 id="t_when">我什么时候能退休?</h2>
-    <label id="l_desired">期望退休后月支出 ($,今日购买力)</label>
-    <input type="number" id="desired" value="0" step="500">
-    <div id="whenResult" class="ok"></div>
   </div>
 
   <!-- ===== results ===== -->
@@ -261,7 +278,7 @@ footer{max-width:1080px;margin:0 auto;padding:16px 24px 40px;font-size:12px;colo
 <script>
 // ===================== i18n =====================
 const D = {
- zh:{title:"加拿大退休规划计算器",sub:"估算级原型 · 数据版本:2026 Q1 · 仅供教育参考",basics:"基本情况",curAge:"当前年龄",prov:"居住省份",mode:"规划模式",single:"单人",couple:"夫妻",spouse:"配偶信息",curAge2:"配偶当前年龄",retAge2:"配偶退休年龄",death2:"配偶预期寿命(规划到几岁)",income2:"配偶在加平均年收入 ($)",yrsWork2:"配偶在加工作年限",yrsRes2:"配偶在加居住年限",rrsp2:"配偶 RRSP ($)",tfsa2:"配偶 TFSA ($)",pension2:"配偶公司养老金 ($/月)",penStart2:"配偶养老金起领年龄",coupleHint:"配偶的CPP/OAS按其本人年限单独计算。非注册投资、房产、每年储蓄、遗产目标为家庭合并数字,填在其他卡片即可。",coupleNote:"夫妻模式假设:合格收入尽量均分省税(近似pension splitting);一方去世后家庭支出降至70%,其RRSP/RRIF免税转给配偶,遗属获其CPP的60%(合并封顶)与公司养老金的60%;首次去世时支付一份丧葬费,期末再预留一份。",qcNote:"魁省已按QPP计算(QPP与CPP费率和金额一致,2026年最高额相同);税务已含魁省65+年龄/独居/退休收入抵免及70+老人支援补贴(按单身估算)。QPP还可延至72岁领取(65岁后每月+0.7%),原型暂以70岁为上限。",income:"在加工作期间平均年收入 (CAD)",incomeHint:"指在加拿大工作那些年的职业生涯平均收入(按今日物价),不是退休前最后一年的工资。CPP按 收入÷YMPE($74,600) 计算且封顶100%:填$74,600以上的任何数结果完全相同($90K和$200K没有区别)。早年低、后来高就估个中间值;准确数字可登录 My Service Canada Account 查CPP Statement of Contributions。",retAge:"目标退休年龄",deathAge:"规划到几岁(预期寿命)",yrsWork:"退休时在加工作年限",yrsRes:"退休时在加居住年限",reqErr:"请先填写“在加工作年限”和“在加居住年限”(红框标出,从未工作/刚登陆可填0)——CPP和OAS都由它们决定,填好后立即显示结果。",assets:"总资产",debtPay:"每月还贷(房贷/车贷等) ($/月)",debtEnd:"还到几岁(还清年龄)",debtHint:"月供在退休后从收入中单独扣除,测算结果的“每月支出”不含月供、是纯生活费。退休前的月供默认由工资承担。若去世时贷款尚未还清,剩余欠款(按未付月供合计)会从遗产中扣除。",otherInc:"退休后每月其他收入(租金/兼职等,税前) ($)",otherEnd:"该收入持续到几岁",nonreg:"其他投资(非注册) ($)",pension:"公司养老金 ($/月)",penStart:"公司养老金开始领取年龄",save:"退休前每年新增储蓄 ($)",ret:"名义年回报率 %",infl:"通胀率 %",retHint:"名义回报率=账户对账单上的回报数字(含通胀)。工具自动扣除通胀,所有结果均按今天的购买力显示。例:回报5%、通胀2%,实际购买力年增约2.9%。",whenT:"我什么时候能退休?",desired:"期望退休后月支出 ($,今日购买力)",when_now:"✓ 现在就可以:按当前资产,AGE岁退休即可支撑每月$X至DEATH岁。",when_ok:"按当前储蓄与投资节奏,每月$X的生活最早可从 N 岁退休,支撑到DEATH岁。",when_no:"即使70岁退休也无法支撑每月$X到DEATH岁。可尝试提高储蓄、降低目标支出或调整回报假设。",lifeErr:"预期寿命需大于退休年龄,请重新选择。",zeroBen:"提示:CPP由“平均年收入 × 在加工作年限”算出,OAS由“在加居住年限”算出。这几项还是0,所以CPP/OAS显示$0——请在“基本情况”里填写。",taxInfo:"<b>离开加拿大的税务处理(要点)</b><br>· 离境税:离境日视同以市价卖出非注册投资等资产并缴增值税;RRSP/RRIF/TFSA与加拿大房产豁免<br>· 预扣税:CPP/OAS/养老金/RRIF按25%预扣(定期RRIF在部分税收协定下降至15%),预扣即为终税,通常无需再报加拿大税表<br>· 保持税务居民:继续按全球收入向加拿大报税,但保留免税额与累进低税级——收入较低或TFSA占比大时往往更划算<br>· 成为非税务居民:RRSP余额大、目的地税率低或有协定优惠时更有利;注意多数国家不承认TFSA的免税地位<br>· 离境当年的报税(departure return)较复杂,请务必咨询跨境税务师",propAmt:"卖房/换小房净所得 ($)",legacyT:"遗产与身后事",legacy:"想留下的遗产 ($,填0即“花光”)",funeral:"丧葬方式(自动预留费用)",where:"退休后住在哪里",stay:"留在加拿大",leave:"离开加拿大(非税务居民)",dest:"目的地",periodic:"RRIF按定期支付(部分税收协定预扣降至15%)",result:"测算结果",resultSub:"按今天的购买力计,税后每月可持续支出:",sources:"收入构成(示例年份)",chart:"资产变化曲线",destCmp:"海外养老目的地对比(单人舒适生活,约CAD/月)",age:"年龄",perMo:"/月",src_cpp:"CPP 加拿大养老金",src_oas:"OAS 老年保障金",src_gis:"GIS 低收入补贴",src_pen:"公司养老金",src_wd:"提取及其他收入(税后)",src_tot:"税后合计",bridge:"⚠ 过桥期提示:你在RETAGE岁退休,但CPP最早60岁、OAS最早65岁才能领取。中间GAP年完全依靠自有资产,曲线前段下降较快是正常的。",oasStop:"⚠ OAS海外停发:你在加居住不足20年,成为非税务居民后OAS将在离境6个月后停发。再住满RE_MORE年即可终身海外领取——这可能值得推迟离开。",oasOk:"✓ 你在加居住已满20年,OAS可终身海外发放。",clawback:"注:收入较高年份OAS会被部分回收(2026年起点$95,323)。",estateNote:"已按遗产目标+丧葬费预留;剩余RRSP/RRIF在去世时按约30%估算清算税。",infeasible:"当前假设下资产不足以支撑到目标年龄。可尝试:推迟退休、提高储蓄、降低遗产目标或调整回报假设。",chartNote:"实线=总资产(今日购买力)。标记:C=开始领CPP,O=开始领OAS。",wh:"预扣税",whNote:"非税务居民:CPP/OAS/RRIF按25%预扣(定期RRIF在部分协定下15%)。无GIS资格。已失去省医保,请在生活费中计入医疗保险。",fit_good:"充裕",fit_mid:"够用",fit_bad:"偏紧",dest_note:"点击目的地行可展开详情(协定/医保/航班/居留/遗产/气候/货币)。货币口径:月生活费与医保费用均为加元(CAD)估算;签证收入门槛按各国官方要求的原币标注(€/US$/泰铢等)。协定与签证信息为2026年概况,请以官方名单为准。",col:["目的地","月生活费","签证途径","医疗","华人/语言","你的支出水平"],
+ zh:{title:"加拿大退休规划计算器",sub:"估算级原型 · 数据版本:2026 Q1 · 仅供教育参考",basics:"基本情况",curAge:"当前年龄",prov:"退休后居住省份(决定税率)",mode:"规划模式",single:"单人",couple:"夫妻",spouse:"配偶信息",curAge2:"配偶当前年龄",retAge2:"配偶退休年龄",death2:"配偶预期寿命(规划到几岁)",income2:"配偶在加平均年收入 ($)",yrsWork2:"配偶在加工作年限",yrsRes2:"配偶在加居住年限",rrsp2:"配偶 RRSP ($)",tfsa2:"配偶 TFSA ($)",pension2:"配偶公司养老金 ($/月)",penStart2:"配偶养老金起领年龄",coupleHint:"配偶的CPP/OAS按其本人年限单独计算;RRSP/TFSA/公司养老金/其他收入各自填写。非注册投资、每年储蓄、房产、负债、回报假设为家庭合并,填在“家庭共同项”卡片。",coupleNote:"夫妻模式假设:合格收入尽量均分省税(近似pension splitting);一方去世后家庭支出降至70%,其RRSP/RRIF免税转给配偶,遗属获其CPP的60%(合并封顶)与公司养老金的60%;首次去世时支付一份丧葬费,期末再预留一份。",qcNote:"魁省已按QPP计算(QPP与CPP费率和金额一致,2026年最高额相同);税务已含魁省65+年龄/独居/退休收入抵免及70+老人支援补贴(按单身估算)。QPP可延至72岁领取(65岁后每月+0.7%,比65岁多58.8%)——CPP/QPP领取年龄栏在魁省下支持填到72。",income:"在加工作期间平均年收入 (CAD)",incomeHint:"指在加拿大工作那些年的职业生涯平均收入(按今日物价),不是退休前最后一年的工资。CPP按 收入÷YMPE($74,600) 计算且封顶100%:填$74,600以上的任何数结果完全相同($90K和$200K没有区别)。早年低、后来高就估个中间值;准确数字可登录 My Service Canada Account 查CPP Statement of Contributions。",retAge:"目标退休年龄",deathAge:"规划到几岁(预期寿命)",yrsWork:"退休时在加工作年限",yrsRes:"退休时在加居住年限",cppAge:"CPP开始领取年龄 (60-70)",cppAgeQC:"QPP开始领取年龄 (60-72)",oasAge:"OAS开始领取年龄 (65-70)",cppAge2:"配偶CPP开始领取年龄 (60-70)",cppAge2QC:"配偶QPP开始领取年龄 (60-72)",oasAge2:"配偶OAS开始领取年龄 (65-70)",benefitHint:"退休年龄和领取年龄可以分开:比如50岁退休、65岁领CPP、70岁领OAS。延后有加成:CPP每月+0.7%(70岁领比65岁多42%),OAS每月+0.6%(70岁多36%);提前领CPP每月-0.6%(60岁领只有64%)。两者70岁后延领无加成。GIS随OAS开始。",benefitHintQC:"退休年龄和领取年龄可以分开:比如50岁退休、65岁领QPP、70岁领OAS。QPP延后每月+0.7%,且魁省独有可延至72岁(比65岁多58.8%);提前领每月-0.6%(60岁领只有64%)。OAS最迟70岁(+36%),之后延领无加成。GIS随OAS开始。",reqErr:"请先填写“在加工作年限”和“在加居住年限”(红框标出,从未工作/刚登陆可填0)——CPP和OAS都由它们决定,填好后立即显示结果。",assets:"本人资产",houseT:"家庭共同项(投资/房产/负债/假设)",otherInc2:"配偶退休后每月其他收入(税前) ($)",otherEnd2:"该收入持续到几岁",debtPay:"每月还贷(房贷/车贷等) ($/月)",debtEnd:"还到几岁(还清年龄)",debtHint:"月供在退休后从收入中单独扣除,测算结果的“每月支出”不含月供、是纯生活费。退休前的月供默认由工资承担。若去世时贷款尚未还清,剩余欠款(按未付月供合计)会从遗产中扣除。",otherInc:"退休后每月其他收入(租金/兼职等,税前) ($)",otherEnd:"该收入持续到几岁",nonreg:"其他投资(非注册,家庭合并) ($)",pension:"公司养老金 ($/月)",penStart:"公司养老金开始领取年龄",save:"退休前每年新增储蓄(家庭合并) ($)",ret:"名义年回报率 %",infl:"通胀率 %",retHint:"名义回报率=账户对账单上的回报数字(含通胀)。工具自动扣除通胀,所有结果均按今天的购买力显示。例:回报5%、通胀2%,实际购买力年增约2.9%。",whenT:"我什么时候能退休?",desired:"期望退休后月支出 ($,今日购买力)",when_now:"✓ 现在就可以:按当前资产,AGE岁退休即可支撑每月$X至DEATH岁。",when_ok:"按当前储蓄与投资节奏,每月$X的生活最早可从 N 岁退休,支撑到DEATH岁。",when_no:"即使70岁退休也无法支撑每月$X到DEATH岁。可尝试提高储蓄、降低目标支出或调整回报假设。",lifeErr:"预期寿命需大于退休年龄,请重新选择。",zeroBen:"提示:CPP由“平均年收入 × 在加工作年限”算出,OAS由“在加居住年限”算出。这几项还是0,所以CPP/OAS显示$0——请在“基本情况”里填写。",taxInfo:"<b>离开加拿大的税务处理(要点)</b><br>· 离境税:离境日视同以市价卖出非注册投资等资产并缴增值税;RRSP/RRIF/TFSA与加拿大房产豁免<br>· 预扣税:CPP/OAS/养老金/RRIF按25%预扣(定期RRIF在部分税收协定下降至15%),预扣即为终税,通常无需再报加拿大税表<br>· 保持税务居民:继续按全球收入向加拿大报税,但保留免税额与累进低税级——收入较低或TFSA占比大时往往更划算<br>· 成为非税务居民:RRSP余额大、目的地税率低或有协定优惠时更有利;注意多数国家不承认TFSA的免税地位<br>· 离境当年的报税(departure return)较复杂,请务必咨询跨境税务师",propAmt:"卖房/换小房净所得 ($)",legacyT:"遗产与身后事",legacy:"想留下的遗产 ($,填0即“花光”)",funeral:"丧葬方式(自动预留费用)",where:"退休后住在哪里",stay:"留在加拿大",leave:"离开加拿大(非税务居民)",dest:"目的地",periodic:"RRIF按定期支付(部分税收协定预扣降至15%)",result:"测算结果",resultSub:"按今天的购买力计,税后每月可持续支出:",sources:"收入构成(示例年份)",chart:"资产变化曲线",destCmp:"海外养老目的地对比(单人舒适生活,约CAD/月)",age:"年龄",perMo:"/月",src_cpp:"CPP 加拿大养老金",src_oas:"OAS 老年保障金",src_gis:"GIS 低收入补贴",src_pen:"公司养老金",src_wd:"提取及其他收入(税后)",src_tot:"税后合计",bridge:"⚠ 过桥期提示:你在RETAGE岁退休,但CPP最早60岁、OAS最早65岁才能领取。中间GAP年完全依靠自有资产,曲线前段下降较快是正常的。",oasStop:"⚠ OAS海外停发:你在加居住不足20年,成为非税务居民后OAS将在离境6个月后停发。再住满RE_MORE年即可终身海外领取——这可能值得推迟离开。",oasOk:"✓ 你在加居住已满20年,OAS可终身海外发放。",clawback:"注:收入较高年份OAS会被部分回收(2026年起点$95,323)。",estateNote:"已按遗产目标+丧葬费预留;剩余RRSP/RRIF在去世时按约30%估算清算税。",infeasible:"当前假设下资产不足以支撑到目标年龄。可尝试:推迟退休、提高储蓄、降低遗产目标或调整回报假设。",chartNote:"实线=总资产(今日购买力)。标记:C=开始领CPP,O=开始领OAS。",wh:"预扣税",whNote:"非税务居民:CPP/OAS/RRIF按25%预扣(定期RRIF在部分协定下15%)。无GIS资格。已失去省医保,请在生活费中计入医疗保险。",fit_good:"充裕",fit_mid:"够用",fit_bad:"偏紧",dest_note:"切换上方“目的地”下拉框查看其他国家/地区;想并排比较,可分别保存为方案。货币口径:生活费/医保/养老护理费用均为加元(CAD)估算,签证收入门槛按各国官方原币(€/US$/泰铢等)。信息为2026年概况,请以官方为准。",destL:["月生活费","签证途径","医疗","华人/语言","详细信息"],col:["目的地","月生活费","签证途径","医疗","华人/语言","你的支出水平"],
 scenT:"方案对比",scenName:"方案名称(如:58岁退休)",saveScen:"保存当前方案",printB:"导出PDF报告(打印)",mcB:"市场波动测试(蒙特卡洛)",mcOut:"考虑市场波动(年波动率11%,150次模拟):当前支出水平的长期成功率约 PCT%;若要90%把握,建议月支出不超过 M90。",scenCur:"当前(未保存)",scenCols:["方案","模式","省份","退休年龄","预期寿命","居住地","月支出",""],
 eduT:"术语小课堂",methodT:"方法论与数据来源",
 supportB:"❤ 支持作者",supportT:"☕ 支持作者",supportLine:"✦ 如果这次测算对你的退休规划有所帮助,欢迎请作者喝杯咖啡 ☕",supportText:"如果这个工具帮到了你,欢迎请作者喝杯咖啡,金额随意。你的支持是它持续更新数据的动力。",
@@ -269,7 +286,7 @@ resultHelpT:"这个数字怎么理解?",
 resultHelp:"它由你填的全部资产和福利算出来:从退休起,每月可以花这么多(税后、按今天物价),恰好花到你设定的岁数,只剩遗产目标和丧葬预留。收入来源会随年龄变化(先靠积蓄,60岁后CPP加入、65岁后OAS加入),但每月可花的钱是拉平的,来源明细见下方“收入构成”表。注意:①活过设定岁数钱即用尽,想稳妥可把预期寿命设为95或100;②此数假设回报固定,是“运气平平”时的乐观上限——点“市场波动测试”可看90%把握下应该花多少,做决定建议参考那个数。",
 eduHTML:"<details><summary><b>CPP / QPP 加拿大养老金</b></summary><p>工作时强制缴费、退休后按缴费记录发放。2026年65岁开领最高$1,507.65/月,全国平均约$925。最早60岁(每提前1个月减0.6%),最晚70岁(比65岁多42%)。魁北克为QPP,费率与金额一致。没有居住要求,海外照发。</p></details><details><summary><b>OAS 老年保障金</b></summary><p>凭18岁后在加居住年限领取,与工作无关:住满40年拿满额($742.31/月,75岁后$816.54),不足按比例。关键规则:住满20年,出国后可终身领取;不满20年,离境6个月后停发。</p></details><details><summary><b>GIS 低收入补贴</b></summary><p>发给低收入OAS领取者,免税。单身最高$1,108.74/月(收入低于$22,488)。注意:RRSP/RRIF提取会按约50%比例减少GIS——低收入者常见策略是65岁前提前清空RRSP。</p></details><details><summary><b>RRSP → RRIF</b></summary><p>存入抵税、增长延税、提取时全额计税。71岁年底前必须转成RRIF,72岁起每年强制按比例提取(72岁5.40%,逐年上升)。去世时剩余余额一次性计税(转给配偶除外)。</p></details><details><summary><b>TFSA 免税账户</b></summary><p>存入不抵税,但增长和提取完全免税,且不计入收入——不影响OAS回收和GIS资格。退休提取顺序中最灵活的工具。注意:多数国家(如美国)不承认其免税地位。</p></details><details><summary><b>OAS回收(Clawback)</b></summary><p>2026年个人净收入超过$95,323后,每多$1回收$0.15的OAS,至约$154,708全部收回。大额RRIF提取是常见触发原因,夫妻收入分摊可缓解。</p></details><details><summary><b>非税务居民与预扣税</b></summary><p>切断主要居住联系(住所、配偶、受养人)后可成为非税务居民。此后CPP/OAS/RRIF等按25%预扣(税收协定可降,定期RRIF部分协定15%),预扣即终税。同时失去省医保。</p></details><details><summary><b>离境税(Departure Tax)</b></summary><p>离开加拿大当日,非注册投资等资产视同按市价卖出并缴增值税。RRSP/RRIF/TFSA与加拿大房产豁免。可提供担保申请缓缴。离境年报税复杂,建议请跨境税务师。</p></details><details><summary><b>Pension Splitting 收入分摊</b></summary><p>夫妻间可把最多50%的合格养老金收入(公司养老金、65+的RRIF提取)分给低收入一方报税,利用两份免税额和低税级,常年可省数千加元。</p></details>",
 methodHTML:"所有结果按今天的购买力显示(实际回报=名义回报−通胀)。税务按人计算:2026年联邦及各省税率表(CRA官网)、基本免税额、65+联邦年龄额与养老金抵免、魁省Line 361抵免及70+老人支援补贴;夫妻模式下合格收入自动均分(近似pension splitting)。GIS与OAS回收按公开公式估算。蒙特卡洛模拟以11%年化波动率随机化投资回报。数据版本:2026 Q1,来源:Canada.ca、CRA、Revenu Québec、Retirement Abroad Index 2026。本工具为教育用途估算,误差可达±15%,不构成投资、税务或法律建议。"},
- en:{title:"Canadian Retirement Planner",sub:"Estimation-level prototype · Data version: 2026 Q1 · educational use only",basics:"Basics",curAge:"Current age",prov:"Province of residence",mode:"Planning mode",single:"Single",couple:"Couple",spouse:"Spouse Details",curAge2:"Spouse current age",retAge2:"Spouse retirement age",death2:"Spouse life expectancy (plan until age)",income2:"Spouse avg annual income in Canada ($)",yrsWork2:"Spouse years worked in Canada",yrsRes2:"Spouse years lived in Canada",rrsp2:"Spouse RRSP ($)",tfsa2:"Spouse TFSA ($)",pension2:"Spouse workplace pension ($/mo)",penStart2:"Spouse pension start age",coupleHint:"Spouse CPP/OAS are calculated from their own years. Non-registered investments, home proceeds, annual savings, and legacy are household totals — enter them once in the other cards.",coupleNote:"Couple assumptions: eligible income is split evenly to minimize tax (approximates pension splitting); after the first death household spending drops to 70%, RRSP/RRIF rolls tax-free to the survivor, who receives 60% of the deceased's CPP (combined cap) and 60% of their workplace pension; one funeral is paid at first death and one reserved at the end.",qcNote:"Quebec is calculated with QPP (identical rates and maximums to CPP in 2026); taxes include Quebec's 65+ age/living-alone/retirement-income credits and the 70+ senior assistance credit (single-person basis). QPP can also be deferred to 72 (+0.7%/mo after 65); this prototype caps at 70.",income:"Avg annual income while working in Canada (CAD)",incomeHint:"Your career-average earnings during your Canadian working years (in today's dollars), not your final salary. CPP uses income ÷ YMPE ($74,600), capped at 100%: any number above $74,600 gives the identical result ($90K = $200K). If earnings varied, estimate a midpoint; for exact figures see your CPP Statement of Contributions in My Service Canada Account.",retAge:"Target retirement age",deathAge:"Plan until age (life expectancy)",yrsWork:"Years worked in Canada by retirement",yrsRes:"Years lived in Canada by retirement",reqErr:"Please fill in years worked and years lived in Canada (highlighted in red; enter 0 if never worked / newly arrived) — CPP and OAS depend on them. Results appear as soon as they're filled.",assets:"Total Assets",debtPay:"Monthly debt payments (mortgage/car etc.) ($/mo)",debtEnd:"Paid off at age",debtHint:"Debt payments are deducted separately from income after retirement; the result's monthly spending is pure living costs excluding debt. Pre-retirement payments are assumed covered by salary. Any debt still unpaid at death (sum of remaining payments) is deducted from the estate.",otherInc:"Other monthly income in retirement (rent/part-time, pre-tax) ($)",otherEnd:"This income lasts until age",nonreg:"Non-registered investments ($)",pension:"Workplace pension ($/mo)",penStart:"Workplace pension start age",save:"Annual savings until retirement ($)",ret:"Nominal return %",infl:"Inflation %",retHint:"Nominal return = the number on your statements (includes inflation). The tool subtracts inflation automatically; all results are in today's dollars. E.g., 5% return with 2% inflation ≈ 2.9% real growth.",whenT:"When Can I Retire?",desired:"Desired monthly spending in retirement ($, today's dollars)",when_now:"✓ You can retire now: at age AGE your assets sustain $X/mo until DEATH.",when_ok:"At your current savings pace, $X/mo is sustainable retiring at age N (until DEATH).",when_no:"Even retiring at 70 cannot sustain $X/mo until DEATH. Try saving more, lowering target spending, or adjusting returns.",lifeErr:"Life expectancy must be greater than retirement age.",zeroBen:"Note: CPP comes from average income × years worked; OAS from years lived in Canada. These are still 0, so CPP/OAS show $0 — fill them in under Basics.",taxInfo:"<b>Tax treatment when leaving Canada (key points)</b><br>· Departure tax: deemed disposition of non-registered investments at fair market value on exit; RRSP/RRIF/TFSA and Canadian real estate are exempt<br>· Withholding: 25% on CPP/OAS/pension/RRIF (15% for periodic RRIF under some treaties); withholding is final — usually no Canadian return needed after<br>· Staying a tax resident: taxed on worldwide income but keeps credits and graduated low brackets — often better with lower income or a large TFSA<br>· Becoming non-resident: better with a large RRSP, low destination tax, or treaty benefits; note most countries don't recognize the TFSA's tax-free status<br>· The departure-year return is complex — consult a cross-border tax professional",propAmt:"Home sale / downsize proceeds ($)",legacyT:"Legacy & Final Arrangements",legacy:"Legacy to leave ($, 0 = spend it all)",funeral:"Funeral type (cost auto-reserved)",where:"Where will you live?",stay:"Stay in Canada",leave:"Leave Canada (non-resident)",dest:"Destination",periodic:"Periodic RRIF payments (15% treaty withholding where applicable)",result:"Results",resultSub:"Sustainable after-tax monthly spending, in today's dollars:",sources:"Income Sources (sample years)",chart:"Assets Over Time",destCmp:"Destination Comparison (comfortable single, ~CAD/mo)",age:"Age",perMo:"/mo",src_cpp:"CPP",src_oas:"OAS",src_gis:"GIS",src_pen:"Workplace pension",src_wd:"Withdrawals & other income (after tax)",src_tot:"Total after tax",bridge:"⚠ Bridge period: you retire at RETAGE but CPP starts at 60 and OAS at 65 at the earliest. For GAP years you rely entirely on your own assets — an early dip in the curve is normal.",oasStop:"⚠ OAS stops abroad: with under 20 years of Canadian residency, OAS stops 6 months after you leave. Staying RE_MORE more year(s) secures OAS for life abroad — possibly worth delaying departure.",oasOk:"✓ 20+ years of residency: your OAS is payable abroad for life.",clawback:"Note: OAS is partially clawed back in high-income years (2026 threshold $95,323).",estateNote:"Legacy target + funeral reserved; remaining RRSP/RRIF taxed ~30% at death (estimate).",infeasible:"Assets cannot sustain spending to the target age under these assumptions. Try retiring later, saving more, lowering the legacy target, or adjusting returns.",chartNote:"Line = total assets (today's dollars). Markers: C = CPP starts, O = OAS starts.",wh:"Withholding",whNote:"Non-resident: 25% withholding on CPP/OAS/RRIF (15% for periodic RRIF under some treaties). No GIS. Provincial health coverage lost — budget for private insurance.",fit_good:"Comfortable",fit_mid:"Adequate",fit_bad:"Tight",dest_note:"Click a row to expand details (treaties/insurance/flights/residency/estate/climate/currency). Currency: monthly costs and insurance are CAD estimates; visa income thresholds are in each country's official currency (€/US$/THB etc.). Treaty and visa info is a 2026 overview — verify against official lists.",col:["Destination","Monthly cost","Visa route","Healthcare","Chinese community","Your budget fits as"],
+ en:{title:"Canadian Retirement Planner",sub:"Estimation-level prototype · Data version: 2026 Q1 · educational use only",basics:"Basics",curAge:"Current age",prov:"Province of residence in retirement (sets tax rates)",mode:"Planning mode",single:"Single",couple:"Couple",spouse:"Spouse Details",curAge2:"Spouse current age",retAge2:"Spouse retirement age",death2:"Spouse life expectancy (plan until age)",income2:"Spouse avg annual income in Canada ($)",yrsWork2:"Spouse years worked in Canada",yrsRes2:"Spouse years lived in Canada",rrsp2:"Spouse RRSP ($)",tfsa2:"Spouse TFSA ($)",pension2:"Spouse workplace pension ($/mo)",penStart2:"Spouse pension start age",coupleHint:"Spouse CPP/OAS are calculated from their own years; RRSP/TFSA/pension/other income are per person. Non-registered investments, annual savings, property, debt, and return assumptions are household items — see the Household card.",coupleNote:"Couple assumptions: eligible income is split evenly to minimize tax (approximates pension splitting); after the first death household spending drops to 70%, RRSP/RRIF rolls tax-free to the survivor, who receives 60% of the deceased's CPP (combined cap) and 60% of their workplace pension; one funeral is paid at first death and one reserved at the end.",qcNote:"Quebec is calculated with QPP (identical rates and maximums to CPP in 2026); taxes include Quebec's 65+ age/living-alone/retirement-income credits and the 70+ senior assistance credit (single-person basis). QPP can be deferred to 72 (+0.7%/mo after 65, 58.8% more than at 65) — the CPP/QPP start-age field accepts up to 72 when QC is selected.",income:"Avg annual income while working in Canada (CAD)",incomeHint:"Your career-average earnings during your Canadian working years (in today's dollars), not your final salary. CPP uses income ÷ YMPE ($74,600), capped at 100%: any number above $74,600 gives the identical result ($90K = $200K). If earnings varied, estimate a midpoint; for exact figures see your CPP Statement of Contributions in My Service Canada Account.",retAge:"Target retirement age",deathAge:"Plan until age (life expectancy)",yrsWork:"Years worked in Canada by retirement",yrsRes:"Years lived in Canada by retirement",cppAge:"CPP start age (60-70)",cppAgeQC:"QPP start age (60-72)",oasAge:"OAS start age (65-70)",cppAge2:"Spouse CPP start age (60-70)",cppAge2QC:"Spouse QPP start age (60-72)",oasAge2:"Spouse OAS start age (65-70)",benefitHint:"Retirement age and benefit start ages are independent: e.g., retire at 50, take CPP at 65 and OAS at 70. Deferral bonuses: CPP +0.7%/mo (42% more at 70 vs 65), OAS +0.6%/mo (36% more at 70); early CPP costs 0.6%/mo (only 64% at 60). No gain past 70. GIS begins with OAS.",benefitHintQC:"Retirement age and benefit start ages are independent: e.g., retire at 50, take QPP at 65 and OAS at 70. QPP defers at +0.7%/mo and — unique to Quebec — can be delayed to 72 (58.8% more than at 65); early QPP costs 0.6%/mo (only 64% at 60). OAS caps at 70 (+36%). GIS begins with OAS.",reqErr:"Please fill in years worked and years lived in Canada (highlighted in red; enter 0 if never worked / newly arrived) — CPP and OAS depend on them. Results appear as soon as they're filled.",assets:"Your Assets",houseT:"Household Items (investments/property/debt/assumptions)",otherInc2:"Spouse other monthly income in retirement (pre-tax) ($)",otherEnd2:"This income lasts until age",debtPay:"Monthly debt payments (mortgage/car etc.) ($/mo)",debtEnd:"Paid off at age",debtHint:"Debt payments are deducted separately from income after retirement; the result's monthly spending is pure living costs excluding debt. Pre-retirement payments are assumed covered by salary. Any debt still unpaid at death (sum of remaining payments) is deducted from the estate.",otherInc:"Other monthly income in retirement (rent/part-time, pre-tax) ($)",otherEnd:"This income lasts until age",nonreg:"Non-registered investments (household) ($)",pension:"Workplace pension ($/mo)",penStart:"Workplace pension start age",save:"Annual savings until retirement (household) ($)",ret:"Nominal return %",infl:"Inflation %",retHint:"Nominal return = the number on your statements (includes inflation). The tool subtracts inflation automatically; all results are in today's dollars. E.g., 5% return with 2% inflation ≈ 2.9% real growth.",whenT:"When Can I Retire?",desired:"Desired monthly spending in retirement ($, today's dollars)",when_now:"✓ You can retire now: at age AGE your assets sustain $X/mo until DEATH.",when_ok:"At your current savings pace, $X/mo is sustainable retiring at age N (until DEATH).",when_no:"Even retiring at 70 cannot sustain $X/mo until DEATH. Try saving more, lowering target spending, or adjusting returns.",lifeErr:"Life expectancy must be greater than retirement age.",zeroBen:"Note: CPP comes from average income × years worked; OAS from years lived in Canada. These are still 0, so CPP/OAS show $0 — fill them in under Basics.",taxInfo:"<b>Tax treatment when leaving Canada (key points)</b><br>· Departure tax: deemed disposition of non-registered investments at fair market value on exit; RRSP/RRIF/TFSA and Canadian real estate are exempt<br>· Withholding: 25% on CPP/OAS/pension/RRIF (15% for periodic RRIF under some treaties); withholding is final — usually no Canadian return needed after<br>· Staying a tax resident: taxed on worldwide income but keeps credits and graduated low brackets — often better with lower income or a large TFSA<br>· Becoming non-resident: better with a large RRSP, low destination tax, or treaty benefits; note most countries don't recognize the TFSA's tax-free status<br>· The departure-year return is complex — consult a cross-border tax professional",propAmt:"Home sale / downsize proceeds ($)",legacyT:"Legacy & Final Arrangements",legacy:"Legacy to leave ($, 0 = spend it all)",funeral:"Funeral type (cost auto-reserved)",where:"Where will you live?",stay:"Stay in Canada",leave:"Leave Canada (non-resident)",dest:"Destination",periodic:"Periodic RRIF payments (15% treaty withholding where applicable)",result:"Results",resultSub:"Sustainable after-tax monthly spending, in today's dollars:",sources:"Income Sources (sample years)",chart:"Assets Over Time",destCmp:"Destination Comparison (comfortable single, ~CAD/mo)",age:"Age",perMo:"/mo",src_cpp:"CPP",src_oas:"OAS",src_gis:"GIS",src_pen:"Workplace pension",src_wd:"Withdrawals & other income (after tax)",src_tot:"Total after tax",bridge:"⚠ Bridge period: you retire at RETAGE but CPP starts at 60 and OAS at 65 at the earliest. For GAP years you rely entirely on your own assets — an early dip in the curve is normal.",oasStop:"⚠ OAS stops abroad: with under 20 years of Canadian residency, OAS stops 6 months after you leave. Staying RE_MORE more year(s) secures OAS for life abroad — possibly worth delaying departure.",oasOk:"✓ 20+ years of residency: your OAS is payable abroad for life.",clawback:"Note: OAS is partially clawed back in high-income years (2026 threshold $95,323).",estateNote:"Legacy target + funeral reserved; remaining RRSP/RRIF taxed ~30% at death (estimate).",infeasible:"Assets cannot sustain spending to the target age under these assumptions. Try retiring later, saving more, lowering the legacy target, or adjusting returns.",chartNote:"Line = total assets (today's dollars). Markers: C = CPP starts, O = OAS starts.",wh:"Withholding",whNote:"Non-resident: 25% withholding on CPP/OAS/RRIF (15% for periodic RRIF under some treaties). No GIS. Provincial health coverage lost — budget for private insurance.",fit_good:"Comfortable",fit_mid:"Adequate",fit_bad:"Tight",dest_note:"Switch the Destination dropdown above to view other countries; to compare side by side, save each as a scenario. Currency: living/insurance/care costs are CAD estimates; visa income thresholds are in each country's official currency (€/US$/THB etc.). 2026 overview — verify against official sources.",destL:["Monthly cost","Visa route","Healthcare","Chinese community","Details"],col:["Destination","Monthly cost","Visa route","Healthcare","Chinese community","Your budget fits as"],
 scenT:"Scenario Comparison",scenName:"Scenario name (e.g. Retire at 58)",saveScen:"Save current scenario",printB:"Export PDF report (print)",mcB:"Market volatility test (Monte Carlo)",mcOut:"With market volatility (11% annual, 150 simulations): current spending succeeds ~PCT% of the time; for 90% confidence, keep monthly spending under M90.",scenCur:"Current (unsaved)",scenCols:["Scenario","Mode","Province","Retire at","Life expectancy","Where","Monthly spending",""],
 eduT:"Glossary",methodT:"Methodology & Data Sources",
 supportB:"❤ Support",supportT:"☕ Support the Author",supportLine:"✦ If this reading of your retirement has helped, consider buying the author a coffee ☕",supportText:"If this tool helped you, consider buying the author a coffee — any amount. Your support keeps the data updated.",
@@ -325,44 +342,44 @@ function taxOn(t,age=64,penInc=0,alone=true){
 
 const DESTS=[
  {zh:"中国大陆",en:"Mainland China",lo:1200,hi:2500,vzh:"Q1/Q2家庭团聚签",ven:"Q1/Q2 family visa",mzh:"大城市优质且费用低",men:"Big-city care good & cheap",czh:"母语环境",cen:"Native language",
-  dzh:"税收协定:✓ · 社保协定(可累计OAS年限):✓(2017) · 医保:本地商业险便宜,国际险约CAD $250-500/月 · 直飞:温哥华/多伦多↔北上广10-13小时 · 居留:无移民路径,家庭团聚Q1签可长住 · 资产:外汇管制(每人每年5万美元换汇额度) · 气候:南北差异大 · 货币:人民币",
-  den:"Tax treaty: ✓ · Social security agreement (counts toward OAS years): ✓ (2017) · Insurance: local plans cheap; intl ~CAD $250-500/mo · Flights: direct YVR/YYZ 10-13h · Residency: no immigration path; Q1 family visa for long stays · Assets: FX controls (US$50k/yr quota) · Climate: varies widely · Currency: RMB"},
+  dzh:"税收协定:✓ · 社保协定(可累计OAS年限):✓(2017) · 医保:本地商业险便宜,国际险约CAD $250-500/月 · 直飞:温哥华/多伦多↔北上广10-13小时 · 居留:无移民路径,家庭团聚Q1签可长住 · 资产:外汇管制(每人每年5万美元换汇额度) · 气候:南北差异大 · 货币:人民币 · 养老院:约CAD $500-2,000/月(城市差异大) · 住家保姆/护工:约CAD $600-1,200/月",
+  den:"Tax treaty: ✓ · Social security agreement (counts toward OAS years): ✓ (2017) · Insurance: local plans cheap; intl ~CAD $250-500/mo · Flights: direct YVR/YYZ 10-13h · Residency: no immigration path; Q1 family visa for long stays · Assets: FX controls (US$50k/yr quota) · Climate: varies widely · Currency: RMB · Nursing home: ~CAD $500-2,000/mo (varies by city) · Live-in caregiver: ~CAD $600-1,200/mo"},
  {zh:"香港",en:"Hong Kong",lo:3000,hi:5000,vzh:"无退休签;受养人/优才等",ven:"No retirement visa; dependant/QMAS",mzh:"世界一流,私立昂贵",men:"World-class; private pricey",czh:"粤语/普通话社会",cen:"Cantonese/Mandarin society",
-  dzh:"税收协定:✓(2013) · 社保协定:✗(居港年限不能累计OAS) · 医保:私立贵,约CAD $300-700/月 · 直飞:温哥华/多伦多↔香港13-15小时 · 居留:受养人签等,住满7年可申永居 · 遗产:无遗产税 · 气候:亚热带湿热,夏秋台风 · 货币:港币挂钩美元,稳定",
-  den:"Treaty: ✓ (2013) · SSA: ✗ · Insurance: ~CAD $300-700/mo · Flights: direct 13-15h · Residency: dependant visa etc.; PR after 7 yrs · Estate: no estate tax · Climate: humid subtropical, typhoons · Currency: HKD pegged to USD"},
+  dzh:"税收协定:✓(2013) · 社保协定:✗(居港年限不能累计OAS) · 医保:私立贵,约CAD $300-700/月 · 直飞:温哥华/多伦多↔香港13-15小时 · 居留:受养人签等,住满7年可申永居 · 遗产:无遗产税 · 气候:亚热带湿热,夏秋台风 · 货币:港币挂钩美元,稳定 · 养老院:约CAD $2,000-5,000/月 · 住家外佣:约CAD $900-1,200/月(含食宿)",
+  den:"Treaty: ✓ (2013) · SSA: ✗ · Insurance: ~CAD $300-700/mo · Flights: direct 13-15h · Residency: dependant visa etc.; PR after 7 yrs · Estate: no estate tax · Climate: humid subtropical, typhoons · Currency: HKD pegged to USD · Nursing home: ~CAD $2,000-5,000/mo · Live-in helper: ~CAD $900-1,200/mo (room & board incl.)"},
  {zh:"台湾",en:"Taiwan",lo:1500,hi:2600,vzh:"无正式退休签;长期访问/依亲",ven:"No formal retirement visa",mzh:"优质且便宜",men:"Excellent & affordable",czh:"华语环境",cen:"Mandarin environment",
-  dzh:"税务安排:✓(2016,效果类似协定) · 社保协定:✗ · 医保:取得居留证可入健保(极便宜);私险CAD $150-350/月 · 直飞:温哥华↔台北约11小时 · 居留:依亲/投资等可转永居 · 遗产:有遗产税(10-20%) · 气候:亚热带,夏有台风 · 货币:新台币稳定",
-  den:"Tax arrangement: ✓ (2016) · SSA: ✗ · Insurance: NHI once resident (very cheap); private CAD $150-350/mo · Flights: YVR-TPE direct ~11h · Residency: family/investment routes to PR · Estate: estate tax 10-20% · Climate: subtropical, typhoons · Currency: TWD stable"},
+  dzh:"税务安排:✓(2016,效果类似协定) · 社保协定:✗ · 医保:取得居留证可入健保(极便宜);私险CAD $150-350/月 · 直飞:温哥华↔台北约11小时 · 居留:依亲/投资等可转永居 · 遗产:有遗产税(10-20%) · 气候:亚热带,夏有台风 · 货币:新台币稳定 · 养老院:约CAD $1,500-3,000/月 · 外籍看护:约CAD $1,000-1,400/月",
+  den:"Tax arrangement: ✓ (2016) · SSA: ✗ · Insurance: NHI once resident (very cheap); private CAD $150-350/mo · Flights: YVR-TPE direct ~11h · Residency: family/investment routes to PR · Estate: estate tax 10-20% · Climate: subtropical, typhoons · Currency: TWD stable · Nursing home: ~CAD $1,500-3,000/mo · Foreign live-in caregiver: ~CAD $1,000-1,400/mo"},
  {zh:"新加坡",en:"Singapore",lo:4000,hi:6500,vzh:"无退休签;子女为公民/PR可申长期探访签",ven:"No retirement visa; LTVP via citizen/PR children",mzh:"世界一流,费用高",men:"World-class, expensive",czh:"华人为主,中英文通行",cen:"Chinese-majority; Mandarin & English",
-  dzh:"税收协定:✓ · 社保协定:✗ · 医保:CAD $400-800/月 · 直飞:温哥华↔新加坡约15-16小时 · 居留:退休者基本无路径,长期探访签需子女为公民/PR;永居极难 · 税制:境外收入个人不征税,无资本利得税 · 遗产:无遗产税 · 气候:全年湿热 · 货币:新元,极稳且坚挺",
-  den:"Treaty: ✓ · SSA: ✗ · Insurance: CAD $400-800/mo · Flights: YVR direct ~15-16h · Residency: essentially no path for retirees; LTVP via citizen/PR children; PR very hard · Tax: foreign income untaxed for individuals, no capital gains tax · Estate: no estate duty · Climate: hot & humid year-round · Currency: SGD, very strong & stable"},
+  dzh:"税收协定:✓ · 社保协定:✗ · 医保:CAD $400-800/月 · 直飞:温哥华↔新加坡约15-16小时 · 居留:退休者基本无路径,长期探访签需子女为公民/PR;永居极难 · 税制:境外收入个人不征税,无资本利得税 · 遗产:无遗产税 · 气候:全年湿热 · 货币:新元,极稳且坚挺 · 养老院:约CAD $2,500-5,000/月 · 住家女佣:约CAD $800-1,200/月",
+  den:"Treaty: ✓ · SSA: ✗ · Insurance: CAD $400-800/mo · Flights: YVR direct ~15-16h · Residency: essentially no path for retirees; LTVP via citizen/PR children; PR very hard · Tax: foreign income untaxed for individuals, no capital gains tax · Estate: no estate duty · Climate: hot & humid year-round · Currency: SGD, very strong & stable · Nursing home: ~CAD $2,500-5,000/mo · Live-in helper: ~CAD $800-1,200/mo"},
  {zh:"泰国",en:"Thailand",lo:1600,hi:2700,vzh:"O-A退休签(50+)",ven:"O-A retirement visa (50+)",mzh:"曼谷私立国际水准",men:"Bangkok private: international grade",czh:"华裔多,英语一般",cen:"Large ethnic-Chinese; limited English",
-  dzh:"税收协定:✓ · 社保协定:✗ · 医保:O-A签强制要求,CAD $200-450/月 · 直飞:无,经转约18-20小时 · 居留:退休签逐年续,无永居路径 · 产权:外国人不能持有土地(公寓可以) · 气候:全年炎热,5-10月雨季 · 货币:泰铢",
-  den:"Treaty: ✓ · SSA: ✗ · Insurance: mandatory for O-A, CAD $200-450/mo · Flights: no direct, ~18-20h · Residency: annual renewals, no PR path · Property: foreigners can't own land (condos OK) · Climate: hot year-round · Currency: THB"},
+  dzh:"税收协定:✓ · 社保协定:✗ · 医保:O-A签强制要求,CAD $200-450/月 · 直飞:无,经转约18-20小时 · 居留:退休签逐年续,无永居路径 · 产权:外国人不能持有土地(公寓可以) · 气候:全年炎热,5-10月雨季 · 货币:泰铢 · 退休村/养老院:约CAD $1,000-2,500/月(清迈有面向西方人的成熟机构) · 住家护工:约CAD $500-900/月",
+  den:"Treaty: ✓ · SSA: ✗ · Insurance: mandatory for O-A, CAD $200-450/mo · Flights: no direct, ~18-20h · Residency: annual renewals, no PR path · Property: foreigners can't own land (condos OK) · Climate: hot year-round · Currency: THB · Retirement village/nursing home: ~CAD $1,000-2,500/mo (Chiang Mai has mature Western-oriented facilities) · Live-in caregiver: ~CAD $500-900/mo"},
  {zh:"马来西亚",en:"Malaysia",lo:1500,hi:2500,vzh:"MM2H",ven:"MM2H",mzh:"私立好且便宜",men:"Good private care, low cost",czh:"华人约1/4,中文通行",cen:"~25% Chinese; Mandarin works",
-  dzh:"税收协定:✓ · 社保协定:✗ · 医保:CAD $150-400/月 · 直飞:无,约20小时 · 居留:MM2H长期签证,无入籍路径 · 遗产:无遗产税 · 气候:全年湿热 · 货币:林吉特偏弱",
-  den:"Treaty: ✓ · SSA: ✗ · Insurance: CAD $150-400/mo · Flights: no direct, ~20h · Residency: MM2H long-term pass, no citizenship path · Estate: no estate tax · Climate: hot & humid year-round · Currency: MYR soft"},
+  dzh:"税收协定:✓ · 社保协定:✗ · 医保:CAD $150-400/月 · 直飞:无,约20小时 · 居留:MM2H长期签证,无入籍路径 · 遗产:无遗产税 · 气候:全年湿热 · 货币:林吉特偏弱 · 养老院:约CAD $800-2,000/月 · 住家护工:约CAD $500-800/月",
+  den:"Treaty: ✓ · SSA: ✗ · Insurance: CAD $150-400/mo · Flights: no direct, ~20h · Residency: MM2H long-term pass, no citizenship path · Estate: no estate tax · Climate: hot & humid year-round · Currency: MYR soft · Nursing home: ~CAD $800-2,000/mo · Live-in caregiver: ~CAD $500-800/mo"},
  {zh:"菲律宾",en:"Philippines",lo:1400,hi:2500,vzh:"SRRV(50+)",ven:"SRRV (50+)",mzh:"大城市尚可,乡村弱",men:"OK in major cities",czh:"英语通行,华社中等",cen:"English widely spoken",
-  dzh:"税收协定:✓ · 社保协定:✓(可累计OAS年限) · 医保:CAD $150-350/月 · 直飞:温哥华/多伦多↔马尼拉12-16小时 · 居留:SRRV即永久居留 · 产权:外国人不能持有土地;有强制继承规则 · 气候:湿热,台风多 · 货币:比索偏弱",
-  den:"Treaty: ✓ · SSA: ✓ (counts toward OAS) · Insurance: CAD $150-350/mo · Flights: direct 12-16h · Residency: SRRV = permanent · Property: no land ownership; forced heirship rules · Climate: hot, many typhoons · Currency: PHP soft"},
+  dzh:"税收协定:✓ · 社保协定:✓(可累计OAS年限) · 医保:CAD $150-350/月 · 直飞:温哥华/多伦多↔马尼拉12-16小时 · 居留:SRRV即永久居留 · 产权:外国人不能持有土地;有强制继承规则 · 气候:湿热,台风多 · 货币:比索偏弱 · 养老院:约CAD $800-1,800/月 · 住家护工:约CAD $300-600/月(全球最经济的居家照护之一)",
+  den:"Treaty: ✓ · SSA: ✓ (counts toward OAS) · Insurance: CAD $150-350/mo · Flights: direct 12-16h · Residency: SRRV = permanent · Property: no land ownership; forced heirship rules · Climate: hot, many typhoons · Currency: PHP soft · Nursing home: ~CAD $800-1,800/mo · Live-in caregiver: ~CAD $300-600/mo (among the world's most affordable home care)"},
  {zh:"越南",en:"Vietnam",lo:1100,hi:2000,vzh:"无退休签,需续签",ven:"No retirement visa",mzh:"私立中等,重症需赴外",men:"Modest; fly out for serious care",czh:"华社较小",cen:"Small community",
-  dzh:"税收协定:✓ · 社保协定:✗ · 医保:CAD $150-350/月 · 直飞:温哥华↔胡志明市有直飞 · 居留:无退休/永居路径,靠续签 · 产权:外国人房产受限 · 气候:南部全年热,北部有四季 · 货币:越南盾有贬值倾向",
-  den:"Treaty: ✓ · SSA: ✗ · Insurance: CAD $150-350/mo · Flights: direct YVR-SGN available · Residency: no retirement/PR path · Property: restricted for foreigners · Climate: south hot year-round · Currency: VND tends to depreciate"},
+  dzh:"税收协定:✓ · 社保协定:✗ · 医保:CAD $150-350/月 · 直飞:温哥华↔胡志明市有直飞 · 居留:无退休/永居路径,靠续签 · 产权:外国人房产受限 · 气候:南部全年热,北部有四季 · 货币:越南盾有贬值倾向 · 养老院:约CAD $600-1,500/月(机构较少) · 住家护工:约CAD $300-600/月",
+  den:"Treaty: ✓ · SSA: ✗ · Insurance: CAD $150-350/mo · Flights: direct YVR-SGN available · Residency: no retirement/PR path · Property: restricted for foreigners · Climate: south hot year-round · Currency: VND tends to depreciate · Nursing home: ~CAD $600-1,500/mo (few facilities) · Live-in caregiver: ~CAD $300-600/mo"},
  {zh:"巴拿马",en:"Panama",lo:1600,hi:2800,vzh:"Pensionado(月养老金US$1,000)",ven:"Pensionado (US$1,000/mo pension)",mzh:"巴拿马城私立佳",men:"Good private in Panama City",czh:"老华侨社区;用美元",cen:"Historic Chinese community; USD",
-  dzh:"税收协定:✓(2013) · 社保协定:✗ · 医保:CAD $200-400/月 · 直飞:多伦多↔巴拿马城约6小时 · 居留:Pensionado即永久居留,5年可申入籍;全国性老人折扣制度 · 税制:属地征税(境外收入不征税) · 气候:热带,位于飓风带之外 · 货币:美元",
-  den:"Treaty: ✓ (2013) · SSA: ✗ · Insurance: CAD $200-400/mo · Flights: YYZ direct ~6h · Residency: Pensionado = PR, citizenship after 5 yrs; national senior discounts · Tax: territorial (foreign income untaxed) · Climate: tropical, outside hurricane belt · Currency: USD"},
+  dzh:"税收协定:✓(2013) · 社保协定:✗ · 医保:CAD $200-400/月 · 直飞:多伦多↔巴拿马城约6小时 · 居留:Pensionado即永久居留,5年可申入籍;全国性老人折扣制度 · 税制:属地征税(境外收入不征税) · 气候:热带,位于飓风带之外 · 货币:美元 · 养老院:约CAD $1,500-3,000/月 · 住家护工:约CAD $700-1,200/月",
+  den:"Treaty: ✓ (2013) · SSA: ✗ · Insurance: CAD $200-400/mo · Flights: YYZ direct ~6h · Residency: Pensionado = PR, citizenship after 5 yrs; national senior discounts · Tax: territorial (foreign income untaxed) · Climate: tropical, outside hurricane belt · Currency: USD · Nursing home: ~CAD $1,500-3,000/mo · Live-in caregiver: ~CAD $700-1,200/mo"},
  {zh:"希腊",en:"Greece",lo:1800,hi:3000,vzh:"FIP签(月被动收入€2,000)",ven:"FIP visa (€2,000/mo passive)",mzh:"私立便宜尚可",men:"Affordable private care",czh:"华人很少",cen:"Very small",
-  dzh:"税收协定:✓ · 社保协定:✓(可累计OAS年限) · 医保:私险便宜,CAD $100-250/月 · 直飞:蒙特利尔↔雅典(季节性)约9小时 · 居留:FIP可续签,约7年可申入籍 · 遗产:有遗产税(近亲税率低) · 气候:地中海,冬季温和 · 货币:欧元",
-  den:"Treaty: ✓ · SSA: ✓ · Insurance: CAD $100-250/mo · Flights: seasonal YUL-ATH ~9h · Residency: FIP renewable; citizenship ~7 yrs · Estate: inheritance tax (low for close family) · Climate: Mediterranean · Currency: EUR"},
+  dzh:"税收协定:✓ · 社保协定:✓(可累计OAS年限) · 医保:私险便宜,CAD $100-250/月 · 直飞:蒙特利尔↔雅典(季节性)约9小时 · 居留:FIP可续签,约7年可申入籍 · 遗产:有遗产税(近亲税率低) · 气候:地中海,冬季温和 · 货币:欧元 · 养老院:约CAD $1,500-3,000/月 · 住家护工:约CAD $1,200-2,000/月",
+  den:"Treaty: ✓ · SSA: ✓ · Insurance: CAD $100-250/mo · Flights: seasonal YUL-ATH ~9h · Residency: FIP renewable; citizenship ~7 yrs · Estate: inheritance tax (low for close family) · Climate: Mediterranean · Currency: EUR · Nursing home: ~CAD $1,500-3,000/mo · Live-in caregiver: ~CAD $1,200-2,000/mo"},
  {zh:"西班牙",en:"Spain",lo:2200,hi:3500,vzh:"非营利居留(月收入€2,400)",ven:"Non-lucrative visa (€2,400/mo)",mzh:"优质,私保便宜",men:"Excellent; cheap insurance",czh:"大城市有华人区",cen:"Chinese areas in big cities",
-  dzh:"税收协定:✓ · 社保协定:✓(可累计OAS年限) · 医保:NLV要求全额私险,CAD $80-200/月 · 直飞:多伦多/蒙特利尔↔马德里7-8小时 · 居留:NLV→5年永居→10年入籍 · 税务注意:成为税务居民后按全球收入征税,部分地区有财富税 · 遗产:有遗产税(各自治区差异大) · 气候:地中海 · 货币:欧元",
-  den:"Treaty: ✓ · SSA: ✓ · Insurance: full private required for NLV, CAD $80-200/mo · Flights: direct 7-8h · Residency: NLV → PR at 5 yrs → citizenship at 10 · Tax note: worldwide taxation as resident; wealth tax in some regions · Estate: inheritance tax varies by region · Climate: Mediterranean · Currency: EUR"},
+  dzh:"税收协定:✓ · 社保协定:✓(可累计OAS年限) · 医保:NLV要求全额私险,CAD $80-200/月 · 直飞:多伦多/蒙特利尔↔马德里7-8小时 · 居留:NLV→5年永居→10年入籍 · 税务注意:成为税务居民后按全球收入征税,部分地区有财富税 · 遗产:有遗产税(各自治区差异大) · 气候:地中海 · 货币:欧元 · 养老院:约CAD $2,000-3,500/月 · 住家护工:约CAD $1,400-2,200/月",
+  den:"Treaty: ✓ · SSA: ✓ · Insurance: full private required for NLV, CAD $80-200/mo · Flights: direct 7-8h · Residency: NLV → PR at 5 yrs → citizenship at 10 · Tax note: worldwide taxation as resident; wealth tax in some regions · Estate: inheritance tax varies by region · Climate: Mediterranean · Currency: EUR · Nursing home: ~CAD $2,000-3,500/mo · Live-in caregiver: ~CAD $1,400-2,200/mo"},
  {zh:"葡萄牙",en:"Portugal",lo:2500,hi:3700,vzh:"D7被动收入签",ven:"D7 passive income visa",mzh:"良好,私保便宜",men:"Good; cheap insurance",czh:"较小",cen:"Small",
-  dzh:"税收协定:✓ · 社保协定:✓(可累计OAS年限) · 医保:CAD $80-200/月 · 直飞:多伦多/蒙特利尔↔里斯本6-7小时 · 居留:D7→5年永居→10年入籍(2026年新规) · 遗产:直系亲属免税 · 气候:地中海温和 · 货币:欧元",
-  den:"Treaty: ✓ · SSA: ✓ · Insurance: CAD $80-200/mo · Flights: direct 6-7h · Residency: D7 → PR 5 yrs → citizenship 10 yrs (2026 rule) · Estate: exempt for direct family · Climate: mild Mediterranean · Currency: EUR"},
+  dzh:"税收协定:✓ · 社保协定:✓(可累计OAS年限) · 医保:CAD $80-200/月 · 直飞:多伦多/蒙特利尔↔里斯本6-7小时 · 居留:D7→5年永居→10年入籍(2026年新规) · 遗产:直系亲属免税 · 气候:地中海温和 · 货币:欧元 · 养老院:约CAD $1,800-3,200/月 · 住家护工:约CAD $1,300-2,000/月",
+  den:"Treaty: ✓ · SSA: ✓ · Insurance: CAD $80-200/mo · Flights: direct 6-7h · Residency: D7 → PR 5 yrs → citizenship 10 yrs (2026 rule) · Estate: exempt for direct family · Climate: mild Mediterranean · Currency: EUR · Nursing home: ~CAD $1,800-3,200/mo · Live-in caregiver: ~CAD $1,300-2,000/mo"},
  {zh:"加勒比海地区",en:"Caribbean",lo:1800,hi:4000,vzh:"各国不同(巴巴多斯/多米尼加等)",ven:"Varies by island",mzh:"大岛尚可,重症赴美",men:"OK on large islands; US for serious care",czh:"极小;注意飓风季",cen:"Tiny; hurricane season",
-  dzh:"税收协定:视国家(巴巴多斯/牙买加/多米尼加✓,巴哈马✗) · 社保协定:多数英语岛国✓(巴巴多斯、牙买加、圣卢西亚等) · 医保:CAD $200-500/月,重症常需赴美(费用极高) · 直飞:多伦多↔主要岛屿4-5小时 · 居留:各国退休/居留计划不同 · 气候:热带,6-11月飓风季 · 货币:多与美元挂钩",
-  den:"Treaty: varies (Barbados/Jamaica ✓; Bahamas ✗) · SSA: most anglophone islands ✓ (Barbados, Jamaica, St. Lucia...) · Insurance: CAD $200-500/mo; serious care often in the US (very costly) · Flights: YYZ 4-5h · Residency: varies by island · Climate: tropical, hurricanes Jun-Nov · Currency: mostly USD-pegged"}];
+  dzh:"税收协定:视国家(巴巴多斯/牙买加/多米尼加✓,巴哈马✗) · 社保协定:多数英语岛国✓(巴巴多斯、牙买加、圣卢西亚等) · 医保:CAD $200-500/月,重症常需赴美(费用极高) · 直飞:多伦多↔主要岛屿4-5小时 · 居留:各国退休/居留计划不同 · 气候:热带,6-11月飓风季 · 货币:多与美元挂钩 · 养老院:约CAD $2,000-4,000/月(各岛差异大) · 护工:各岛差异大,约CAD $800-1,800/月",
+  den:"Treaty: varies (Barbados/Jamaica ✓; Bahamas ✗) · SSA: most anglophone islands ✓ (Barbados, Jamaica, St. Lucia...) · Insurance: CAD $200-500/mo; serious care often in the US (very costly) · Flights: YYZ 4-5h · Residency: varies by island · Climate: tropical, hurricanes Jun-Nov · Currency: mostly USD-pegged · Nursing home: ~CAD $2,000-4,000/mo (varies by island) · Caregiver: ~CAD $800-1,800/mo, varies widely"}];
 
 // ===================== UI state =====================
 let retAge=60, deathAge=90, leaveCanada=false, coupleMode=false;
@@ -394,11 +411,12 @@ function initProv(){const s=document.getElementById("prov");const cur=s.value||"
  s.value=PROV[cur]?cur:"ON";}
 function toggleLang(){lang=lang==="zh"?"en":"zh";document.getElementById("langBtn").textContent=lang==="zh"?"EN":"中文";applyLang();}
 function applyLang(){const t=D[lang];
- const map={t_title:"title",t_sub:"sub",t_basics:"basics",l_curAge:"curAge",l_prov:"prov",l_income:"income",l_mode:"mode",t_spouse:"spouse",l_curAge2:"curAge2",l_retAge2:"retAge2",l_death2:"death2",l_income2:"income2",l_yrsWork2:"yrsWork2",l_yrsRes2:"yrsRes2",l_rrsp2:"rrsp2",l_tfsa2:"tfsa2",l_pension2:"pension2",l_penStart2:"penStart2",l_retAge:"retAge",l_deathAge:"deathAge",l_yrsWork:"yrsWork",l_yrsRes:"yrsRes",t_assets:"assets",l_otherInc:"otherInc",l_otherEnd:"otherEnd",l_debtPay:"debtPay",l_debtEnd:"debtEnd",l_nonreg:"nonreg",l_pension:"pension",l_penStart:"penStart",l_save:"save",l_ret:"ret",l_infl:"infl",l_propAmt:"propAmt",t_legacy:"legacyT",l_legacy:"legacy",l_funeral:"funeral",t_where:"where",l_dest:"dest",l_periodic:"periodic",t_result:"result",t_resultSub:"resultSub",t_sources:"sources",t_chart:"chart",t_destCmp:"destCmp",t_when:"whenT",l_desired:"desired",t_scen:"scenT",t_edu:"eduT",t_method:"methodT",saveScenBtn:"saveScen",printBtn:"printB",mcBtn:"mcB"};
+ const map={t_title:"title",t_sub:"sub",t_basics:"basics",l_curAge:"curAge",l_prov:"prov",l_income:"income",l_mode:"mode",t_spouse:"spouse",l_curAge2:"curAge2",l_retAge2:"retAge2",l_death2:"death2",l_income2:"income2",l_yrsWork2:"yrsWork2",l_yrsRes2:"yrsRes2",l_rrsp2:"rrsp2",l_tfsa2:"tfsa2",l_pension2:"pension2",l_penStart2:"penStart2",l_otherInc2:"otherInc2",l_otherEnd2:"otherEnd2",t_house:"houseT",l_retAge:"retAge",l_deathAge:"deathAge",l_yrsWork:"yrsWork",l_yrsRes:"yrsRes",l_cppAge:"cppAge",l_oasAge:"oasAge",l_cppAge2:"cppAge2",l_oasAge2:"oasAge2",t_assets:"assets",l_otherInc:"otherInc",l_otherEnd:"otherEnd",l_debtPay:"debtPay",l_debtEnd:"debtEnd",l_nonreg:"nonreg",l_pension:"pension",l_penStart:"penStart",l_save:"save",l_ret:"ret",l_infl:"infl",l_propAmt:"propAmt",t_legacy:"legacyT",l_legacy:"legacy",l_funeral:"funeral",t_where:"where",l_dest:"dest",l_periodic:"periodic",t_result:"result",t_resultSub:"resultSub",t_sources:"sources",t_chart:"chart",t_destCmp:"destCmp",t_when:"whenT",l_desired:"desired",t_scen:"scenT",t_edu:"eduT",t_method:"methodT",saveScenBtn:"saveScen",printBtn:"printB",mcBtn:"mcB"};
  for(const[id,k]of Object.entries(map))document.getElementById(id).textContent=t[k];
  document.getElementById("retHint").textContent=t.retHint;
  document.getElementById("incomeHint").textContent=t.incomeHint;
  document.getElementById("debtHint").textContent=t.debtHint;
+ document.getElementById("benefitHint").textContent=t.benefitHint;
  document.getElementById("resultHelpT").textContent=t.resultHelpT;
  document.getElementById("resultHelpB").textContent=t.resultHelp;
  document.getElementById("supportBtn").textContent=t.supportB;
@@ -422,19 +440,20 @@ function applyLang(){const t=D[lang];
 // ===================== core model =====================
 function inputs(){const g=id=>parseFloat(document.getElementById(id).value)||0;
  return{curAge:g("curAge"),income:g("income"),yrsWork:g("yrsWork"),yrsRes:g("yrsRes"),
+  cppAge:g("cppAge")||65,oasAge:g("oasAge")||65,cppAge2:g("cppAge2")||65,oasAge2:g("oasAge2")||65,
   rrsp:g("rrsp"),tfsa:g("tfsa"),nonreg:g("nonreg"),pen:g("pension"),penStart:g("penStart")||65,save:g("save"),
-  curAge2:g("curAge2"),retAge2:g("retAge2"),death2:g("death2"),income2:g("income2"),yrsWork2:g("yrsWork2"),yrsRes2:g("yrsRes2"),rrsp2:g("rrsp2"),tfsa2:g("tfsa2"),pen2:g("pension2"),penStart2:g("penStart2")||65,
+  curAge2:g("curAge2"),retAge2:g("retAge2"),death2:g("death2"),income2:g("income2"),yrsWork2:g("yrsWork2"),yrsRes2:g("yrsRes2"),rrsp2:g("rrsp2"),tfsa2:g("tfsa2"),pen2:g("pension2"),penStart2:g("penStart2")||65,otherInc2:g("otherInc2"),otherEnd2:g("otherEnd2")||100,
   r:g("retRate")/100,i:g("infl")/100,prop:g("propAmt"),otherInc:g("otherInc"),otherEnd:g("otherEnd")||100,debtPay:g("debtPay"),debtEnd:g("debtEnd")||0,legacy:g("legacy"),
   funeral:parseFloat(document.getElementById("funeral").value),
   periodic:document.getElementById("periodic").checked};}
 
 function benefits(p){
- // CPP: starts at clamp(retAge,60,70)
- const cppStart=Math.min(Math.max(retAge,60),70);
+ // CPP: starts at user-chosen age (60-70; QPP in QC allows up to 72)
+ const cppStart=Math.min(Math.max(p.cppAge||65,60),prov==="QC"?72:70);
  let cpp=CPP_MAX*Math.min(p.yrsWork/40,1)*Math.min(p.income/YMPE,1);
  cpp*= cppStart<65 ? 1-0.006*12*(65-cppStart) : 1+0.007*12*(cppStart-65);
- // OAS: starts max(65,retAge) cap 70
- const oasStart=Math.min(Math.max(retAge,65),70);
+ // OAS: starts at user-chosen age (65-70)
+ const oasStart=Math.min(Math.max(p.oasAge||65,65),70);
  let oasEligible=!leaveCanada||p.yrsRes>=20;
  let oas=oasEligible?OAS_65*Math.min(p.yrsRes/40,1)*(oasStart>65?1+0.006*12*(oasStart-65):1):0;
  return{cpp,cppStart,oas,oasStart,oasEligible};
@@ -448,12 +467,12 @@ function simulate(m,p,vol,seed){ // m = net monthly HOUSEHOLD spending (today's 
   const rng=()=>{s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};
   const gauss=()=>{const u=Math.max(rng(),1e-9),v=rng();return Math.sqrt(-2*Math.log(u))*Math.cos(6.2831853*v);};
   gf=()=>Math.max(0.3,1+p.r+gauss()*vol)/(1+p.i);}
- const P=[{cur:p.curAge,ret:retAge,death:deathAge,yw:p.yrsWork,yr:p.yrsRes,inc:p.income,reg:p.rrsp,tf:p.tfsa,pen:p.pen,ps:p.penStart}];
- if(coupleMode)P.push({cur:p.curAge2,ret:p.retAge2,death:p.death2,yw:p.yrsWork2,yr:p.yrsRes2,inc:p.income2,reg:p.rrsp2,tf:p.tfsa2,pen:p.pen2,ps:p.penStart2});
- P.forEach(q=>{const st=Math.min(Math.max(q.ret,60),70);
+ const P=[{cur:p.curAge,ret:retAge,death:deathAge,yw:p.yrsWork,yr:p.yrsRes,inc:p.income,reg:p.rrsp,tf:p.tfsa,pen:p.pen,ps:p.penStart,ca:p.cppAge,oa:p.oasAge,oi:p.otherInc,oe:p.otherEnd}];
+ if(coupleMode)P.push({cur:p.curAge2,ret:p.retAge2,death:p.death2,yw:p.yrsWork2,yr:p.yrsRes2,inc:p.income2,reg:p.rrsp2,tf:p.tfsa2,pen:p.pen2,ps:p.penStart2,ca:p.cppAge2,oa:p.oasAge2,oi:p.otherInc2,oe:p.otherEnd2});
+ P.forEach(q=>{const st=Math.min(Math.max(q.ca||65,60),prov==="QC"?72:70);
   let cpp=CPP_MAX*Math.min(q.yw/40,1)*Math.min(q.inc/YMPE,1);
   q.cpp=st<65?cpp*(1-0.006*12*(65-st)):cpp*(1+0.007*12*(st-65));
-  q.cppStart=st;q.oasStart=Math.min(Math.max(q.ret,65),70);
+  q.cppStart=st;q.oasStart=Math.min(Math.max(q.oa||65,65),70);
   const el=!leaveCanada||q.yr>=20;
   q.oas=el?OAS_65*Math.min(q.yr/40,1)*(q.oasStart>65?1+0.006*12*(q.oasStart-65):1):0;
   q.dead=false;});
@@ -476,14 +495,13 @@ function simulate(m,p,vol,seed){ // m = net monthly HOUSEHOLD spending (today's 
   alive.forEach(q=>{q.age=q.cur+ty;
    q.cppNow=q.age>=q.cppStart?q.cpp:0;
    q.oasNow=q.age>=q.oasStart?(q.age>=75?q.oas*OAS_75/OAS_65:q.oas):0;
-   q.penNow=q.age>=q.ps?q.pen:0;});
-  const oth=(p.curAge+ty)<=p.otherEnd?p.otherInc*12:0;
-  const othShare=oth/alive.length;
+   q.penNow=q.age>=q.ps?q.pen:0;
+   q.othNow=(q.oi&&q.age<=q.oe)?q.oi*12:0;});
   const totReg=alive.reduce((s,q)=>s+q.reg,0);
   const forced=alive.reduce((s,q)=>s+(q.age>=72?q.reg*rrifMin(q.age):0),0);
   const netOf=(W)=>{
    // taxable per person: own CPP/OAS fixed; pension + withdrawals split to equalize (approx. income splitting)
-   const fixed=alive.map(q=>(q.cppNow+q.oasNow)*12+othShare);
+   const fixed=alive.map(q=>(q.cppNow+q.oasNow)*12+q.othNow);
    const pool=alive.reduce((s,q)=>s+q.penNow*12,0)+W;
    let tx;
    if(alive.length===1)tx=[fixed[0]+pool];
@@ -495,7 +513,7 @@ function simulate(m,p,vol,seed){ // m = net monthly HOUSEHOLD spending (today's 
    alive.forEach((q,i)=>{const t=tx[i];
     if(leaveCanada){net+=t*(1-whRate(p));oasTot+=q.oasNow;return;}
     const claw=Math.max(0,Math.min(q.oasNow*12,0.15*Math.max(0,t-CLAW_TH)));
-    const penShare=Math.max(0,t-(q.cppNow+q.oasNow)*12-othShare);
+    const penShare=Math.max(0,t-(q.cppNow+q.oasNow)*12-q.othNow);
     net+=t-taxOn(t,q.age,penShare,alive.length===1)-claw;
     oasTot+=q.oasNow-claw/12;
     gisInc+=t-q.oasNow*12;});
@@ -564,6 +582,11 @@ function calc(){
  prov=document.getElementById("prov").value||"ON";
  const pn=document.getElementById("provNote");
  if(prov==="QC"){pn.style.display="block";pn.textContent=t.qcNote;}else pn.style.display="none";
+ document.getElementById("l_cppAge").textContent=prov==="QC"?t.cppAgeQC:t.cppAge;
+ document.getElementById("l_cppAge2").textContent=prov==="QC"?t.cppAge2QC:t.cppAge2;
+ document.getElementById("benefitHint").textContent=prov==="QC"?t.benefitHintQC:t.benefitHint;
+ document.getElementById("cppAge").max=prov==="QC"?72:70;
+ document.getElementById("cppAge2").max=prov==="QC"?72:70;
  if(deathAge<=retAge){document.getElementById("bigNum").textContent="—";
   document.getElementById("resultNotes").textContent=t.lifeErr;
   document.getElementById("whenResult").textContent="";return;}
@@ -588,6 +611,7 @@ function calc(){
  if(!leaveCanada)notes.push(t.clawback); else notes.push(t.whNote);
  document.getElementById("resultNotes").innerHTML=notes.map(n=>"· "+n).join("<br>");
  // income table: sample ages
+ document.getElementById("t_sources").textContent=t.sources+(coupleMode?(lang==="zh"?"(家庭两人合计)":" (household total)"):"");
  const samples=[...new Set([retAge,55,Math.max(retAge,b.cppStart),Math.max(retAge,b.oasStart),75,Math.min(deathAge-1,85)])].filter(a=>a>=retAge&&a<deathAge).sort((x,y)=>x-y);
  const rowsByAge=Object.fromEntries(best.rows.map(r=>[r.age,r]));
  const cppHdr=prov==="QC"?(lang==="zh"?"QPP 魁北克养老金":"QPP"):t.src_cpp;
@@ -634,15 +658,18 @@ function calc(){
 
 function destTable(m){const t=D[lang];
  const mult=coupleMode?1.5:1;
- document.getElementById("t_destCmp").textContent=t.destCmp+(coupleMode?(lang==="zh"?"(夫妻按单人×1.5估)":" (couple ≈ single ×1.5)"):"");
- let h=`<tr><th>${t.col[0]}</th><th>${t.col[1]}</th><th>${t.col[2]}</th><th>${t.col[3]}</th><th>${t.col[4]}</th><th>${t.col[5]}</th></tr>`;
- DESTS.forEach((d,i)=>{
-  const lo=Math.round(d.lo*mult),hi=Math.round(d.hi*mult);
-  let tag,cls;
-  if(m>=hi){tag=t.fit_good;cls="good";}else if(m>=lo){tag=t.fit_mid;cls="mid";}else{tag=t.fit_bad;cls="bad";}
-  h+=`<tr style="cursor:pointer" onclick="var e=document.getElementById('dd${i}');e.style.display=e.style.display==='none'?'':'none'"><td><b>${d[lang]}</b> <span style="color:var(--blue);font-size:11px">▾</span></td><td>$${lo.toLocaleString()}–$${hi.toLocaleString()}</td><td>${lang==="zh"?d.vzh:d.ven}</td><td>${lang==="zh"?d.mzh:d.men}</td><td>${lang==="zh"?d.czh:d.cen}</td><td><span class="tag ${cls}">${tag}</span></td></tr>`;
-  h+=`<tr id="dd${i}" style="display:none"><td colspan="6" style="background:#f4f9fb;font-size:12px;line-height:1.8;color:var(--ink)">${lang==="zh"?d.dzh:d.den}</td></tr>`;});
- h+=`<tr><td colspan="6" style="color:var(--muted);font-size:12px">${t.dest_note}</td></tr>`;
+ const d=DESTS[+document.getElementById("dest").value]||DESTS[0];
+ document.getElementById("t_destCmp").textContent=(lang==="zh"?"目的地详情:":"Destination: ")+d[lang]+(coupleMode?(lang==="zh"?"(夫妻,费用按单人×1.5估)":" (couple ≈ single ×1.5)"):"");
+ const lo=Math.round(d.lo*mult),hi=Math.round(d.hi*mult);
+ let tag,cls;
+ if(m>=hi){tag=t.fit_good;cls="good";}else if(m>=lo){tag=t.fit_mid;cls="mid";}else{tag=t.fit_bad;cls="bad";}
+ const L=t.destL;
+ let h=`<tr><th style="width:170px">${L[0]}</th><td>$${lo.toLocaleString()}–$${hi.toLocaleString()}/月 <span class="tag ${cls}">${tag}</span></td></tr>`;
+ h+=`<tr><th>${L[1]}</th><td>${lang==="zh"?d.vzh:d.ven}</td></tr>`;
+ h+=`<tr><th>${L[2]}</th><td>${lang==="zh"?d.mzh:d.men}</td></tr>`;
+ h+=`<tr><th>${L[3]}</th><td>${lang==="zh"?d.czh:d.cen}</td></tr>`;
+ h+=`<tr><th>${L[4]}</th><td style="line-height:1.9">${(lang==="zh"?d.dzh:d.den).split(" · ").join("<br>")}</td></tr>`;
+ h+=`<tr><td colspan="2" style="color:var(--muted);font-size:12px">${t.dest_note}</td></tr>`;
  document.getElementById("destTable").innerHTML=h;}
 
 function drawChart(rows,b,p){
